@@ -25,7 +25,6 @@
       --danger:#ef4444;
       --yellow:#f2c300;
       --shadow:0 10px 30px rgba(16,24,40,.08);
-      --radius:24px;
     }
 
     body.dark{
@@ -56,7 +55,7 @@
       padding-bottom:88px;
     }
 
-    button,input{
+    button,input,textarea,select{
       font:inherit;
       outline:none;
     }
@@ -103,20 +102,14 @@
       padding:14px 0;
     }
 
-    .header-left,
-    .header-right{
+    .header-left,.header-right{
       display:flex;
       align-items:center;
       gap:10px;
     }
 
-    .header-left{
-      justify-content:flex-start;
-    }
-
-    .header-right{
-      justify-content:flex-end;
-    }
+    .header-left{justify-content:flex-start}
+    .header-right{justify-content:flex-end}
 
     .icon-btn{
       width:48px;
@@ -203,17 +196,10 @@
       color:#0f172a;
     }
 
-    body.dark .switch-track{
-      background:#5b87ff;
-    }
+    body.dark .switch-track{background:#5b87ff}
+    body.dark .switch-thumb{right:46px}
 
-    body.dark .switch-thumb{
-      right:46px;
-    }
-
-    .search-wrap{
-      padding:0 0 14px;
-    }
+    .search-wrap{padding:0 0 14px}
 
     .search-box{
       display:grid;
@@ -250,9 +236,7 @@
       color:var(--muted);
     }
 
-    .main-content{
-      padding:18px 0 34px;
-    }
+    .main-content{padding:18px 0 34px}
 
     .hero{
       display:grid;
@@ -295,8 +279,7 @@
       gap:12px;
     }
 
-    .primary-btn,
-    .secondary-btn{
+    .primary-btn,.secondary-btn{
       min-height:50px;
       padding:0 22px;
       border-radius:16px;
@@ -349,9 +332,7 @@
       top:16px;
     }
 
-    .section{
-      margin-top:28px;
-    }
+    .section{margin-top:28px}
 
     .section-head{
       margin-bottom:16px;
@@ -403,11 +384,6 @@
       border-radius:24px;
       padding:12px;
       box-shadow:var(--shadow);
-      transition:.18s ease;
-    }
-
-    .product:hover{
-      transform:translateY(-2px);
     }
 
     .product-badge{
@@ -450,6 +426,8 @@
       color:var(--muted);
       font-size:14px;
       margin-bottom:10px;
+      line-height:1.8;
+      min-height:50px;
     }
 
     .price-row{
@@ -478,8 +456,7 @@
       margin-top:12px;
     }
 
-    .main-btn,
-    .sub-btn{
+    .main-btn,.sub-btn{
       min-height:46px;
       border:none;
       border-radius:14px;
@@ -520,8 +497,7 @@
       transform:translateX(-50%) translateY(0);
     }
 
-    .cart-overlay,
-    .product-overlay{
+    .cart-overlay,.product-overlay{
       position:fixed;
       inset:0;
       background:rgba(0,0,0,.42);
@@ -531,8 +507,7 @@
       z-index:60;
     }
 
-    .cart-overlay.show,
-    .product-overlay.show{
+    .cart-overlay.show,.product-overlay.show{
       opacity:1;
       pointer-events:auto;
     }
@@ -553,9 +528,7 @@
       flex-direction:column;
     }
 
-    .cart-drawer.show{
-      transform:translateX(0);
-    }
+    .cart-drawer.show{transform:translateX(0)}
 
     .cart-head{
       display:flex;
@@ -817,47 +790,18 @@
       color:var(--blue);
     }
 
-    .bottom-space{
-      height:14px;
-    }
+    .bottom-space{height:14px}
 
     @media (max-width:720px){
-      .brand-main{
-        font-size:44px;
-      }
-
-      .hero{
-        grid-template-columns:1fr;
-        padding:18px;
-      }
-
-      .hero p:last-child{
-        font-size:16px;
-      }
-
-      .categories{
-        grid-template-columns:repeat(2,minmax(0,1fr));
-      }
-
-      .section-head h2{
-        font-size:30px;
-      }
-
-      .products{
-        grid-template-columns:repeat(2,minmax(0,1fr));
-      }
-
-      .product h3{
-        font-size:18px;
-      }
-
-      .product-modal-body{
-        grid-template-columns:1fr;
-      }
-
-      .product-modal h3{
-        font-size:26px;
-      }
+      .brand-main{font-size:44px}
+      .hero{grid-template-columns:1fr;padding:18px}
+      .hero p:last-child{font-size:16px}
+      .categories{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .section-head h2{font-size:30px}
+      .products{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .product h3{font-size:18px}
+      .product-modal-body{grid-template-columns:1fr}
+      .product-modal h3{font-size:26px}
     }
   </style>
 </head>
@@ -1048,47 +992,9 @@
   </nav>
 
   <script>
-    const themeBtn = document.getElementById('themeBtn');
-    const productsContainer = document.getElementById('products');
-    const offersProducts = document.getElementById('offersProducts');
-    const cartCount = document.getElementById('cartCount');
-    const searchInput = document.getElementById('searchInput');
-    const searchBtn = document.getElementById('searchBtn');
-    const searchStatus = document.getElementById('searchStatus');
-    const categoryButtons = document.querySelectorAll('.category-btn');
-    const toast = document.getElementById('toast');
+    const STORE_KEY = 'xr_store_products_v1';
 
-    const openCartBtn = document.getElementById('openCartBtn');
-    const heroCartBtn = document.getElementById('heroCartBtn');
-    const heroShopBtn = document.getElementById('heroShopBtn');
-    const closeCartBtn = document.getElementById('closeCartBtn');
-    const cartOverlay = document.getElementById('cartOverlay');
-    const cartDrawer = document.getElementById('cartDrawer');
-    const cartBody = document.getElementById('cartBody');
-    const totalItems = document.getElementById('totalItems');
-
-    const productOverlay = document.getElementById('productOverlay');
-    const productModal = document.getElementById('productModal');
-    const closeProductBtn = document.getElementById('closeProductBtn');
-    const modalImage = document.getElementById('modalImage');
-    const modalBadge = document.getElementById('modalBadge');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalDescription = document.getElementById('modalDescription');
-    const modalOldPrice = document.getElementById('modalOldPrice');
-    const modalPrice = document.getElementById('modalPrice');
-    const modalAddBtn = document.getElementById('modalAddBtn');
-    const modalCartBtn = document.getElementById('modalCartBtn');
-
-    const navHomeBtn = document.getElementById('navHomeBtn');
-    const navOffersBtn = document.getElementById('navOffersBtn');
-    const navCategoriesBtn = document.getElementById('navCategoriesBtn');
-    const navCartBtn = document.getElementById('navCartBtn');
-
-    let activeCategory = 'all';
-    let cart = [];
-    let currentModalProduct = null;
-
-    const products = [
+    const defaultProducts = [
       {
         id: 1,
         name: 'سماعات لاسلكية',
@@ -1151,6 +1057,59 @@
       }
     ];
 
+    function getProducts(){
+      const saved = localStorage.getItem(STORE_KEY);
+      if(saved){
+        try{
+          return JSON.parse(saved);
+        }catch(e){}
+      }
+      localStorage.setItem(STORE_KEY, JSON.stringify(defaultProducts));
+      return [...defaultProducts];
+    }
+
+    let products = getProducts();
+
+    const themeBtn = document.getElementById('themeBtn');
+    const productsContainer = document.getElementById('products');
+    const offersProducts = document.getElementById('offersProducts');
+    const cartCount = document.getElementById('cartCount');
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const searchStatus = document.getElementById('searchStatus');
+    const categoryButtons = document.querySelectorAll('.category-btn');
+    const toast = document.getElementById('toast');
+
+    const openCartBtn = document.getElementById('openCartBtn');
+    const heroCartBtn = document.getElementById('heroCartBtn');
+    const heroShopBtn = document.getElementById('heroShopBtn');
+    const closeCartBtn = document.getElementById('closeCartBtn');
+    const cartOverlay = document.getElementById('cartOverlay');
+    const cartDrawer = document.getElementById('cartDrawer');
+    const cartBody = document.getElementById('cartBody');
+    const totalItems = document.getElementById('totalItems');
+
+    const productOverlay = document.getElementById('productOverlay');
+    const productModal = document.getElementById('productModal');
+    const closeProductBtn = document.getElementById('closeProductBtn');
+    const modalImage = document.getElementById('modalImage');
+    const modalBadge = document.getElementById('modalBadge');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDescription = document.getElementById('modalDescription');
+    const modalOldPrice = document.getElementById('modalOldPrice');
+    const modalPrice = document.getElementById('modalPrice');
+    const modalAddBtn = document.getElementById('modalAddBtn');
+    const modalCartBtn = document.getElementById('modalCartBtn');
+
+    const navHomeBtn = document.getElementById('navHomeBtn');
+    const navOffersBtn = document.getElementById('navOffersBtn');
+    const navCategoriesBtn = document.getElementById('navCategoriesBtn');
+    const navCartBtn = document.getElementById('navCartBtn');
+
+    let activeCategory = 'all';
+    let cart = [];
+    let currentModalProduct = null;
+
     themeBtn.addEventListener('click', () => {
       document.body.classList.toggle('dark');
     });
@@ -1209,8 +1168,8 @@
       currentModalProduct = product;
       modalImage.src = product.image;
       modalTitle.textContent = product.name;
-      modalBadge.textContent = product.badge;
-      modalDescription.textContent = product.description;
+      modalBadge.textContent = product.badge || 'منتج';
+      modalDescription.textContent = product.description || 'لا يوجد وصف لهذا المنتج.';
       modalPrice.textContent = product.price + ' ر.س';
       modalOldPrice.textContent = product.oldPrice ? (product.oldPrice + ' ر.س') : '';
       modalOldPrice.style.display = product.oldPrice ? 'inline' : 'none';
@@ -1320,12 +1279,12 @@
       card.className = 'product';
 
       card.innerHTML = `
-        <div class="product-badge">${product.badge}</div>
+        <div class="product-badge">${product.badge || 'منتج'}</div>
         <div class="product-image">
           <img src="${product.image}" alt="${product.name}">
         </div>
         <h3>${product.name}</h3>
-        <div class="meta">${product.description}</div>
+        <div class="meta">${product.description || 'لا يوجد وصف لهذا المنتج.'}</div>
         <div class="price-row">
           ${product.oldPrice ? `<span class="old-price">${product.oldPrice} ر.س</span>` : ''}
           <div class="price">${product.price} ر.س</div>
@@ -1357,7 +1316,7 @@
 
     function renderOffers(){
       offersProducts.innerHTML = '';
-      const offers = products.filter(p => p.oldPrice && p.oldPrice > p.price);
+      const offers = products.filter(p => Number(p.oldPrice) > Number(p.price));
       offers.forEach(product => {
         offersProducts.appendChild(buildProductCard(product));
       });
@@ -1373,7 +1332,6 @@
       });
 
       productsContainer.innerHTML = '';
-
       filtered.forEach((p) => {
         productsContainer.appendChild(buildProductCard(p));
       });
