@@ -41,9 +41,7 @@
       --shadow:0 12px 34px rgba(0,0,0,.35);
     }
 
-    html{
-      scroll-behavior:smooth;
-    }
+    html{scroll-behavior:smooth}
 
     body{
       margin:0;
@@ -668,7 +666,7 @@
       right:50%;
       top:50%;
       transform:translate(50%,-50%) scale(.96);
-      width:min(760px, calc(100% - 18px));
+      width:min(860px, calc(100% - 18px));
       max-height:88vh;
       overflow:auto;
       background:var(--surface);
@@ -707,6 +705,11 @@
       gap:16px;
     }
 
+    .product-gallery{
+      display:grid;
+      gap:12px;
+    }
+
     .product-modal-image{
       aspect-ratio:1/1;
       border-radius:22px;
@@ -719,6 +722,35 @@
       height:100%;
       object-fit:cover;
       display:block;
+    }
+
+    .thumbs{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0,1fr));
+      gap:10px;
+    }
+
+    .thumb-btn{
+      border:none;
+      background:transparent;
+      padding:0;
+      border-radius:14px;
+      overflow:hidden;
+      border:2px solid transparent;
+      cursor:pointer;
+      aspect-ratio:1/1;
+    }
+
+    .thumb-btn.active{
+      border-color:var(--blue);
+    }
+
+    .thumb-btn img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+      background:var(--surface-2);
     }
 
     .product-modal-badge{
@@ -802,6 +834,7 @@
       .product h3{font-size:18px}
       .product-modal-body{grid-template-columns:1fr}
       .product-modal h3{font-size:26px}
+      .thumbs{grid-template-columns:repeat(4, minmax(0,1fr))}
     }
   </style>
 </head>
@@ -938,8 +971,11 @@
     </div>
 
     <div class="product-modal-body">
-      <div class="product-modal-image">
-        <img id="modalImage" src="" alt="">
+      <div class="product-gallery">
+        <div class="product-modal-image">
+          <img id="modalImage" src="" alt="">
+        </div>
+        <div class="thumbs" id="modalThumbs"></div>
       </div>
 
       <div>
@@ -1002,7 +1038,10 @@
         oldPrice: 199,
         category: 'accessories',
         badge: 'إكسسوارات',
-        image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80',
+        images: [
+          'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80',
+          'https://images.unsplash.com/photo-1484704849700-f032a568e944?auto=format&fit=crop&w=900&q=80'
+        ],
         description: 'سماعات مريحة للاستماع اليومي بجودة واضحة وتصميم أنيق.'
       },
       {
@@ -1012,60 +1051,33 @@
         oldPrice: 699,
         category: 'smart',
         badge: 'ذكي',
-        image: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=900&q=80',
+        images: [
+          'https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=900&q=80',
+          'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=900&q=80'
+        ],
         description: 'ساعة عملية لمتابعة النشاط اليومي مع شاشة واضحة وتصميم حديث.'
-      },
-      {
-        id: 3,
-        name: 'ماوس ألعاب',
-        price: 299,
-        oldPrice: 0,
-        category: 'electronics',
-        badge: 'إلكتروني',
-        image: 'https://images.unsplash.com/photo-1527814050087-3793815479db?auto=format&fit=crop&w=900&q=80',
-        description: 'ماوس سريع ومريح للألعاب والعمل، مناسب للاستخدام الطويل.'
-      },
-      {
-        id: 4,
-        name: 'زجاجة مياه',
-        price: 45,
-        oldPrice: 0,
-        category: 'home',
-        badge: 'منزلي',
-        image: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?auto=format&fit=crop&w=900&q=80',
-        description: 'زجاجة عملية وخفيفة مناسبة للعمل والتنقل اليومي.'
-      },
-      {
-        id: 5,
-        name: 'منظم مكتبي',
-        price: 79,
-        oldPrice: 99,
-        category: 'office',
-        badge: 'مكتبي',
-        image: 'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=900&q=80',
-        description: 'منظم مكتبي يساعدك على ترتيب الأدوات بطريقة جميلة وعملية.'
-      },
-      {
-        id: 6,
-        name: 'جهاز ذكي منزلي',
-        price: 249,
-        oldPrice: 0,
-        category: 'smart',
-        badge: 'ذكي',
-        image: 'https://images.unsplash.com/photo-1558089687-f282ffcbc0d4?auto=format&fit=crop&w=900&q=80',
-        description: 'جهاز ذكي بسيط يساعدك على التحكم والاستخدام السريع داخل المنزل.'
       }
     ];
+
+    function normalizeProducts(list){
+      return (list || []).map(item => {
+        if (!Array.isArray(item.images) || item.images.length === 0) {
+          const fallback = item.image ? [item.image] : [];
+          item.images = fallback;
+        }
+        return item;
+      });
+    }
 
     function getProducts(){
       const saved = localStorage.getItem(STORE_KEY);
       if(saved){
         try{
-          return JSON.parse(saved);
+          return normalizeProducts(JSON.parse(saved));
         }catch(e){}
       }
       localStorage.setItem(STORE_KEY, JSON.stringify(defaultProducts));
-      return [...defaultProducts];
+      return normalizeProducts([...defaultProducts]);
     }
 
     let products = getProducts();
@@ -1093,6 +1105,7 @@
     const productModal = document.getElementById('productModal');
     const closeProductBtn = document.getElementById('closeProductBtn');
     const modalImage = document.getElementById('modalImage');
+    const modalThumbs = document.getElementById('modalThumbs');
     const modalBadge = document.getElementById('modalBadge');
     const modalTitle = document.getElementById('modalTitle');
     const modalDescription = document.getElementById('modalDescription');
@@ -1164,9 +1177,26 @@
       cartOverlay.classList.remove('show');
     }
 
+    function renderModalThumbs(images){
+      modalThumbs.innerHTML = '';
+      images.forEach((src, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'thumb-btn' + (index === 0 ? ' active' : '');
+        btn.innerHTML = `<img src="${src}" alt="صورة المنتج">`;
+        btn.addEventListener('click', () => {
+          modalImage.src = src;
+          modalThumbs.querySelectorAll('.thumb-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+        });
+        modalThumbs.appendChild(btn);
+      });
+    }
+
     function openProductModal(product){
       currentModalProduct = product;
-      modalImage.src = product.image;
+      const images = Array.isArray(product.images) && product.images.length ? product.images : (product.image ? [product.image] : []);
+      modalImage.src = images[0] || '';
+      renderModalThumbs(images);
       modalTitle.textContent = product.name;
       modalBadge.textContent = product.badge || 'منتج';
       modalDescription.textContent = product.description || 'لا يوجد وصف لهذا المنتج.';
@@ -1274,6 +1304,12 @@
       });
     }
 
+    function getFirstImage(product){
+      if (Array.isArray(product.images) && product.images.length) return product.images[0];
+      if (product.image) return product.image;
+      return '';
+    }
+
     function buildProductCard(product){
       const card = document.createElement('div');
       card.className = 'product';
@@ -1281,7 +1317,7 @@
       card.innerHTML = `
         <div class="product-badge">${product.badge || 'منتج'}</div>
         <div class="product-image">
-          <img src="${product.image}" alt="${product.name}">
+          <img src="${getFirstImage(product)}" alt="${product.name}">
         </div>
         <h3>${product.name}</h3>
         <div class="meta">${product.description || 'لا يوجد وصف لهذا المنتج.'}</div>
@@ -1355,4 +1391,4 @@
     updateCartUI();
   </script>
 </body>
-</html>
+  </html>
