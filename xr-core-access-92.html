@@ -184,6 +184,29 @@
       display:block;
     }
 
+    .preview-box{
+      width:100%;
+      max-width:220px;
+      aspect-ratio:1/1;
+      border-radius:16px;
+      overflow:hidden;
+      border:1px solid var(--line);
+      background:var(--surface-2);
+    }
+
+    .preview-box img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .hint{
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.8;
+    }
+
     @media (max-width:720px){
       .grid{
         grid-template-columns:1fr;
@@ -224,7 +247,7 @@
             <p class="muted">إضافة، تعديل، حذف المنتجات وحفظها داخل المتصفح.</p>
           </div>
           <div class="actions">
-            <a href="index.html" class="btn btn-ghost" style="display:inline-flex;align-items:center">فتح المتجر</a>
+            <a href="index.html" class="btn btn-ghost" style="display:inline-flex;align-items:center;justify-content:center">فتح المتجر</a>
             <button class="btn btn-danger" id="logoutBtn">تسجيل خروج</button>
           </div>
         </div>
@@ -268,9 +291,22 @@
           </div>
 
           <div class="field">
-            <label>رابط الصورة</label>
-            <input type="text" id="image" placeholder="ضع رابط صورة">
+            <label>رفع الصورة من الجهاز</label>
+            <input type="file" id="imageFile" accept="image/*">
           </div>
+        </div>
+
+        <div class="field">
+          <label>أو رابط الصورة</label>
+          <input type="text" id="image" placeholder="اختياري إذا رفعت صورة من الجهاز">
+        </div>
+
+        <div class="field">
+          <label>معاينة الصورة</label>
+          <div class="preview-box">
+            <img id="previewImage" src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80" alt="preview">
+          </div>
+          <div class="hint">إذا اخترت صورة من الجهاز راح تنحفظ داخل المتصفح الحالي وتظهر بالموقع عندك مباشرة.</div>
         </div>
 
         <div class="field">
@@ -335,6 +371,7 @@
 
     let products = getProducts();
     let editingId = null;
+    let uploadedImageData = '';
 
     const loginCard = document.getElementById('loginCard');
     const adminPanel = document.getElementById('adminPanel');
@@ -349,6 +386,8 @@
     const oldPriceInput = document.getElementById('oldPrice');
     const badgeInput = document.getElementById('badge');
     const imageInput = document.getElementById('image');
+    const imageFileInput = document.getElementById('imageFile');
+    const previewImage = document.getElementById('previewImage');
     const descriptionInput = document.getElementById('description');
 
     const saveBtn = document.getElementById('saveBtn');
@@ -389,8 +428,29 @@
       updateAuthUI();
     });
 
+    imageInput.addEventListener('input', () => {
+      if(imageInput.value.trim()){
+        previewImage.src = imageInput.value.trim();
+        uploadedImageData = '';
+      }
+    });
+
+    imageFileInput.addEventListener('change', () => {
+      const file = imageFileInput.files[0];
+      if(!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e){
+        uploadedImageData = e.target.result;
+        previewImage.src = uploadedImageData;
+        imageInput.value = '';
+      };
+      reader.readAsDataURL(file);
+    });
+
     function resetForm(){
       editingId = null;
+      uploadedImageData = '';
       formTitle.textContent = 'إضافة منتج';
       nameInput.value = '';
       categoryInput.value = 'accessories';
@@ -398,7 +458,9 @@
       oldPriceInput.value = '';
       badgeInput.value = '';
       imageInput.value = '';
+      imageFileInput.value = '';
       descriptionInput.value = '';
+      previewImage.src = 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80';
     }
 
     resetBtn.addEventListener('click', resetForm);
@@ -409,7 +471,7 @@
       const price = Number(priceInput.value);
       const oldPrice = Number(oldPriceInput.value || 0);
       const badge = badgeInput.value.trim() || 'منتج';
-      const image = imageInput.value.trim() || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80';
+      const image = uploadedImageData || imageInput.value.trim() || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80';
       const description = descriptionInput.value.trim() || 'لا يوجد وصف لهذا المنتج.';
 
       if(!name || !price){
@@ -446,14 +508,17 @@
       if(!product) return;
 
       editingId = id;
+      uploadedImageData = product.image && product.image.startsWith('data:image') ? product.image : '';
       formTitle.textContent = 'تعديل المنتج';
       nameInput.value = product.name;
       categoryInput.value = product.category;
       priceInput.value = product.price;
       oldPriceInput.value = product.oldPrice || '';
       badgeInput.value = product.badge || '';
-      imageInput.value = product.image || '';
+      imageInput.value = product.image && product.image.startsWith('data:image') ? '' : (product.image || '');
+      imageFileInput.value = '';
       descriptionInput.value = product.description || '';
+      previewImage.src = product.image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
