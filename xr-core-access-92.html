@@ -184,9 +184,13 @@
       display:block;
     }
 
+    .preview-list{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:10px;
+    }
+
     .preview-box{
-      width:100%;
-      max-width:220px;
       aspect-ratio:1/1;
       border-radius:16px;
       overflow:hidden;
@@ -214,6 +218,10 @@
 
       .row{
         flex-direction:column;
+      }
+
+      .preview-list{
+        grid-template-columns:repeat(2,minmax(0,1fr));
       }
     }
   </style>
@@ -291,22 +299,20 @@
           </div>
 
           <div class="field">
-            <label>رفع الصورة من الجهاز</label>
-            <input type="file" id="imageFile" accept="image/*">
+            <label>رفع صور من الجهاز</label>
+            <input type="file" id="imageFiles" accept="image/*" multiple>
           </div>
         </div>
 
         <div class="field">
-          <label>أو رابط الصورة</label>
-          <input type="text" id="image" placeholder="اختياري إذا رفعت صورة من الجهاز">
+          <label>أو روابط الصور</label>
+          <textarea id="imageLinks" placeholder="ضع كل رابط في سطر منفصل"></textarea>
         </div>
 
         <div class="field">
-          <label>معاينة الصورة</label>
-          <div class="preview-box">
-            <img id="previewImage" src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80" alt="preview">
-          </div>
-          <div class="hint">إذا اخترت صورة من الجهاز راح تنحفظ داخل المتصفح الحالي وتظهر بالموقع عندك مباشرة.</div>
+          <label>معاينة الصور</label>
+          <div class="preview-list" id="previewList"></div>
+          <div class="hint">تقدر تختار أكثر من صورة من الجهاز، أو تضيف أكثر من رابط صورة. أول صورة ستكون الرئيسية في بطاقة المنتج.</div>
         </div>
 
         <div class="field">
@@ -339,7 +345,10 @@
         oldPrice: 199,
         category: 'accessories',
         badge: 'إكسسوارات',
-        image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80',
+        images: [
+          'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80',
+          'https://images.unsplash.com/photo-1484704849700-f032a568e944?auto=format&fit=crop&w=900&q=80'
+        ],
         description: 'سماعات مريحة للاستماع اليومي بجودة واضحة وتصميم أنيق.'
       },
       {
@@ -349,20 +358,33 @@
         oldPrice: 699,
         category: 'smart',
         badge: 'ذكي',
-        image: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=900&q=80',
+        images: [
+          'https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=900&q=80',
+          'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=900&q=80'
+        ],
         description: 'ساعة عملية لمتابعة النشاط اليومي مع شاشة واضحة وتصميم حديث.'
       }
     ];
+
+    function normalizeProducts(list){
+      return (list || []).map(item => {
+        if (!Array.isArray(item.images) || item.images.length === 0) {
+          const fallback = item.image ? [item.image] : [];
+          item.images = fallback;
+        }
+        return item;
+      });
+    }
 
     function getProducts(){
       const saved = localStorage.getItem(STORE_KEY);
       if(saved){
         try{
-          return JSON.parse(saved);
+          return normalizeProducts(JSON.parse(saved));
         }catch(e){}
       }
       localStorage.setItem(STORE_KEY, JSON.stringify(defaultProducts));
-      return [...defaultProducts];
+      return normalizeProducts([...defaultProducts]);
     }
 
     function saveProducts(products){
@@ -371,7 +393,7 @@
 
     let products = getProducts();
     let editingId = null;
-    let uploadedImageData = '';
+    let uploadedImagesData = [];
 
     const loginCard = document.getElementById('loginCard');
     const adminPanel = document.getElementById('adminPanel');
@@ -385,9 +407,9 @@
     const priceInput = document.getElementById('price');
     const oldPriceInput = document.getElementById('oldPrice');
     const badgeInput = document.getElementById('badge');
-    const imageInput = document.getElementById('image');
-    const imageFileInput = document.getElementById('imageFile');
-    const previewImage = document.getElementById('previewImage');
+    const imageFilesInput = document.getElementById('imageFiles');
+    const imageLinksInput = document.getElementById('imageLinks');
+    const previewList = document.getElementById('previewList');
     const descriptionInput = document.getElementById('description');
 
     const saveBtn = document.getElementById('saveBtn');
@@ -411,6 +433,7 @@
       adminPanel.style.display = logged ? 'block' : 'none';
       if(logged){
         renderProducts();
+        renderPreview([]);
       }
     }
 
@@ -428,39 +451,66 @@
       updateAuthUI();
     });
 
-    imageInput.addEventListener('input', () => {
-      if(imageInput.value.trim()){
-        previewImage.src = imageInput.value.trim();
-        uploadedImageData = '';
-      }
+    function renderPreview(images){
+      previewList.innerHTML = '';
+      const list = images.length ? images : [
+        'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80'
+      ];
+
+      list.forEach(src => {
+        const box = document.createElement('div');
+        box.className = 'preview-box';
+        box.innerHTML = `<img src="${src}" alt="preview">`;
+        previewList.appendChild(box);
+      });
+    }
+
+    imageLinksInput.addEventListener('input', () => {
+      if (uploadedImagesData.length > 0) return;
+      const links = imageLinksInput.value
+        .split('\\n')
+        .map(v => v.trim())
+        .filter(Boolean);
+      renderPreview(links);
     });
 
-    imageFileInput.addEventListener('change', () => {
-      const file = imageFileInput.files[0];
-      if(!file) return;
+    imageFilesInput.addEventListener('change', async () => {
+      const files = Array.from(imageFilesInput.files || []);
+      uploadedImagesData = [];
 
-      const reader = new FileReader();
-      reader.onload = function(e){
-        uploadedImageData = e.target.result;
-        previewImage.src = uploadedImageData;
-        imageInput.value = '';
-      };
-      reader.readAsDataURL(file);
+      if(!files.length){
+        renderPreview([]);
+        return;
+      }
+
+      const readers = files.map(file => {
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = function(e){
+            resolve(e.target.result);
+          };
+          reader.readAsDataURL(file);
+        });
+      });
+
+      uploadedImagesData = await Promise.all(readers);
+      imageLinksInput.value = '';
+      renderPreview(uploadedImagesData);
     });
 
     function resetForm(){
       editingId = null;
-      uploadedImageData = '';
+      uploadedImagesData = [];
       formTitle.textContent = 'إضافة منتج';
       nameInput.value = '';
       categoryInput.value = 'accessories';
       priceInput.value = '';
       oldPriceInput.value = '';
       badgeInput.value = '';
-      imageInput.value = '';
-      imageFileInput.value = '';
+      imageFilesInput.value = '';
+      imageLinksInput.value = '';
       descriptionInput.value = '';
-      previewImage.src = 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80';
+      renderPreview([]);
     }
 
     resetBtn.addEventListener('click', resetForm);
@@ -471,7 +521,21 @@
       const price = Number(priceInput.value);
       const oldPrice = Number(oldPriceInput.value || 0);
       const badge = badgeInput.value.trim() || 'منتج';
-      const image = uploadedImageData || imageInput.value.trim() || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80';
+
+      let images = [];
+      if (uploadedImagesData.length) {
+        images = [...uploadedImagesData];
+      } else {
+        images = imageLinksInput.value
+          .split('\\n')
+          .map(v => v.trim())
+          .filter(Boolean);
+      }
+
+      if (!images.length) {
+        images = ['https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80'];
+      }
+
       const description = descriptionInput.value.trim() || 'لا يوجد وصف لهذا المنتج.';
 
       if(!name || !price){
@@ -481,7 +545,7 @@
 
       if(editingId){
         products = products.map(p => p.id === editingId ? {
-          ...p, name, category, price, oldPrice, badge, image, description
+          ...p, name, category, price, oldPrice, badge, images, description
         } : p);
         showNotice('تم تعديل المنتج');
       } else {
@@ -492,7 +556,7 @@
           price,
           oldPrice,
           badge,
-          image,
+          images,
           description
         });
         showNotice('تمت إضافة المنتج');
@@ -508,17 +572,20 @@
       if(!product) return;
 
       editingId = id;
-      uploadedImageData = product.image && product.image.startsWith('data:image') ? product.image : '';
+      uploadedImagesData = product.images && product.images.every(v => String(v).startsWith('data:image'))
+        ? [...product.images]
+        : [];
+
       formTitle.textContent = 'تعديل المنتج';
       nameInput.value = product.name;
       categoryInput.value = product.category;
       priceInput.value = product.price;
       oldPriceInput.value = product.oldPrice || '';
       badgeInput.value = product.badge || '';
-      imageInput.value = product.image && product.image.startsWith('data:image') ? '' : (product.image || '');
-      imageFileInput.value = '';
+      imageFilesInput.value = '';
+      imageLinksInput.value = uploadedImagesData.length ? '' : ((product.images || []).join('\\n'));
       descriptionInput.value = product.description || '';
-      previewImage.src = product.image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80';
+      renderPreview(product.images || []);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -539,12 +606,13 @@
       }
 
       products.forEach(product => {
+        const firstImage = (product.images && product.images[0]) || '';
         const item = document.createElement('div');
         item.className = 'product-item';
         item.innerHTML = `
           <div class="row">
             <div class="thumb">
-              <img src="${product.image}" alt="${product.name}">
+              <img src="${firstImage}" alt="${product.name}">
             </div>
 
             <div style="flex:1">
@@ -554,6 +622,7 @@
               </div>
 
               <p class="muted" style="margin-bottom:10px">${product.description}</p>
+              <p class="muted" style="margin-bottom:10px">عدد الصور: ${(product.images || []).length}</p>
 
               <div class="actions">
                 <button class="btn btn-primary edit-btn">تعديل</button>
