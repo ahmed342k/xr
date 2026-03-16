@@ -30,11 +30,12 @@
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
       getAuth,
       signInWithEmailAndPassword,
-      onAuthStateChanged
+      onAuthStateChanged,
+      signOut
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     const firebaseConfig = {
@@ -52,7 +53,7 @@
       "raedhammd22@gmail.com"
     ];
 
-    const app = initializeApp(firebaseConfig);
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
     const emailInput = document.getElementById("email");
@@ -60,10 +61,28 @@
     const loginBtn = document.getElementById("loginBtn");
     const loginMsg = document.getElementById("loginMsg");
 
-    onAuthStateChanged(auth, (user) => {
-      if (user && ADMIN_EMAILS.includes((user.email || "").toLowerCase())) {
-        window.location.href = "admin.html";
+    let checked = false;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (checked) return;
+      checked = true;
+
+      if (!user) return;
+
+      const email = (user.email || "").toLowerCase();
+
+      if (ADMIN_EMAILS.includes(email)) {
+        window.location.replace("admin.html");
+        return;
       }
+
+      try {
+        await signOut(auth);
+      } catch (error) {
+        console.error(error);
+      }
+
+      loginMsg.textContent = "هذا الإيميل غير مسموح له بدخول لوحة الأدمن";
     });
 
     loginBtn.addEventListener("click", async () => {
@@ -82,11 +101,18 @@
         return;
       }
 
+      loginBtn.disabled = true;
+      loginBtn.textContent = "جاري تسجيل الدخول...";
+
       try {
         await signInWithEmailAndPassword(auth, email, password);
-        window.location.href = "admin.html";
+        window.location.replace("admin.html");
       } catch (error) {
+        console.error(error);
         loginMsg.textContent = "فشل تسجيل الدخول. تأكد من الإيميل وكلمة المرور ومن إنشاء الحساب داخل Firebase Auth";
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.textContent = "تسجيل الدخول";
       }
     });
   </script>
