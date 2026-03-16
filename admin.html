@@ -1,54 +1,98 @@
 <!DOCTYPE html>
-<html dir="rtl">
+<html lang="ar" dir="rtl">
 <head>
-
-<meta charset="UTF-8">
-<title>لوحة الادمن</title>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XR Admin</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
+<body class="admin-page">
+  <div class="admin-wrap">
+    <div class="admin-card">
+      <div class="admin-top">
+        <div>
+          <h1 class="admin-title">لوحة تحكم XR</h1>
+          <p class="admin-sub">إضافة، تعديل، حذف المنتجات من Firebase مباشرة.</p>
+        </div>
 
-<body>
+        <div class="admin-actions">
+          <a href="index.html" class="admin-btn-light">فتح المتجر</a>
+        </div>
+      </div>
+    </div>
 
-<h2>اضافة منتج</h2>
+    <div class="admin-card">
+      <div class="notice" id="noticeBox">تم الحفظ</div>
 
-<input id="name" placeholder="اسم المنتج">
+      <h2 id="formTitle">إضافة منتج</h2>
 
-<input id="price" placeholder="السعر">
+      <div class="admin-grid">
+        <div class="field">
+          <label for="name">اسم المنتج</label>
+          <input type="text" id="name" />
+        </div>
 
-<input id="image" placeholder="رابط الصورة">
+        <div class="field">
+          <label for="category">الفئة</label>
+          <select id="category">
+            <option value="accessories">الإكسسوارات</option>
+            <option value="electronics">الأجهزة الإلكترونية</option>
+            <option value="home">الأدوات المنزلية</option>
+            <option value="office">المستلزمات المكتبية</option>
+            <option value="smart">الأجهزة الذكية</option>
+          </select>
+        </div>
 
-<button onclick="addProduct()">اضافة</button>
+        <div class="field">
+          <label for="price">السعر الحالي</label>
+          <input type="number" id="price" />
+        </div>
 
-<script type="module">
+        <div class="field">
+          <label for="oldPrice">السعر قبل الخصم</label>
+          <input type="number" id="oldPrice" />
+        </div>
 
-import { db } from "./firebase.js";
+        <div class="field">
+          <label for="badge">شارة المنتج</label>
+          <input type="text" id="badge" placeholder="مثال: إلكتروني" />
+        </div>
 
-import {
-collection,
-addDoc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        <div class="field">
+          <label for="mainImage">رابط الصورة الرئيسية</label>
+          <input type="text" id="mainImage" placeholder="https://..." />
+        </div>
+      </div>
 
-async function addProduct(){
+      <div class="field">
+        <label for="moreImages">روابط صور إضافية</label>
+        <textarea id="moreImages" placeholder="ضع كل رابط في سطر منفصل"></textarea>
+      </div>
 
-const name=document.getElementById("name").value;
-const price=document.getElementById("price").value;
-const image=document.getElementById("image").value;
+      <div class="field">
+        <label>معاينة الصور</label>
+        <div class="preview-list" id="previewList"></div>
+      </div>
 
-await addDoc(collection(db,"products"),{
+      <div class="field">
+        <label for="description">وصف المنتج</label>
+        <textarea id="description"></textarea>
+      </div>
 
-name:name,
-price:price,
-image:image
+      <div class="admin-actions">
+        <button class="admin-btn" id="saveBtn">حفظ المنتج</button>
+        <button class="admin-btn-light" id="resetBtn">تفريغ الحقول</button>
+      </div>
+    </div>
 
-});
+    <div class="admin-card">
+      <h2>المنتجات الحالية</h2>
+      <div class="admin-products" id="productsList">
+        <div class="empty-box">جاري تحميل المنتجات...</div>
+      </div>
+    </div>
+  </div>
 
-alert("تم اضافة المنتج");
-
-}
-
-window.addProduct=addProduct;
-
-</script>
-
+  <script type="module" src="admin.js"></script>
 </body>
 </html>
