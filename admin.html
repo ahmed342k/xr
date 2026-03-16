@@ -5,9 +5,48 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>XR Admin</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    .auth-loading-screen{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      background:var(--bg, #f4f7fb);
+      color:var(--text, #101828);
+    }
+
+    .auth-loading-card{
+      width:min(460px,100%);
+      background:var(--surface, #fff);
+      border:1px solid var(--line, #e6eaf0);
+      border-radius:24px;
+      box-shadow:var(--shadow, 0 10px 30px rgba(16,24,40,.08));
+      padding:22px;
+      text-align:center;
+    }
+
+    .auth-loading-card h2{
+      margin:0 0 10px;
+      font-size:30px;
+    }
+
+    .auth-loading-card p{
+      margin:0;
+      color:var(--muted, #667085);
+      line-height:1.9;
+    }
+  </style>
 </head>
 <body class="admin-page">
-  <div class="admin-wrap">
+  <div id="authLoading" class="auth-loading-screen">
+    <div class="auth-loading-card">
+      <h2>جاري التحقق</h2>
+      <p>لحظة، يتم التأكد من صلاحية الدخول إلى لوحة الأدمن.</p>
+    </div>
+  </div>
+
+  <div class="admin-wrap" id="adminApp" style="display:none;">
     <div class="admin-card">
       <div class="admin-top">
         <div>
@@ -61,24 +100,24 @@
         </div>
 
         <div class="field">
-          <label for="mainImage">رابط الصورة الرئيسية</label>
-          <input type="text" id="mainImage" placeholder="https://..." />
+          <label for="mainImage">الصورة الرئيسية</label>
+          <input type="file" id="mainImage" accept="image/*" />
         </div>
-      </div>
 
-      <div class="field">
-        <label for="moreImages">روابط صور إضافية</label>
-        <textarea id="moreImages" placeholder="ضع كل رابط في سطر منفصل"></textarea>
-      </div>
-
-      <div class="field">
-        <label>معاينة الصور</label>
-        <div class="preview-list" id="previewList"></div>
+        <div class="field" style="grid-column:1/-1;">
+          <label for="moreImages">صور إضافية</label>
+          <input type="file" id="moreImages" accept="image/*" multiple />
+        </div>
       </div>
 
       <div class="field">
         <label for="description">وصف المنتج</label>
         <textarea id="description"></textarea>
+      </div>
+
+      <div class="field">
+        <label>معاينة الصور</label>
+        <div class="preview-list" id="previewList"></div>
       </div>
 
       <div class="admin-actions">
