@@ -10,9 +10,36 @@ import {
   orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCMvjw8Pv_ixcecNYxsokBOAdjwCJvDnig",
+  authDomain: "xr-store-20583.firebaseapp.com",
+  projectId: "xr-store-20583",
+  storageBucket: "xr-store-20583.firebasestorage.app",
+  messagingSenderId: "967462689229",
+  appId: "1:967462689229:web:71b44aa4ec33253d6dcc84",
+  measurementId: "G-79KCXRRXS2"
+};
+
+const ADMIN_EMAILS = [
+  "ohkvchnjvbnb@gmail.com",
+  "raedhammd22@gmail.com"
+];
+
+const authApp = initializeApp(firebaseConfig, "auth-admin-app");
+const auth = getAuth(authApp);
+
 const formTitle = document.getElementById("formTitle");
 const noticeBox = document.getElementById("noticeBox");
 const productsList = document.getElementById("productsList");
+const adminEmailInfo = document.getElementById("adminEmailInfo");
+const logoutBtn = document.getElementById("logoutBtn");
 
 const nameInput = document.getElementById("name");
 const categoryInput = document.getElementById("category");
@@ -28,6 +55,24 @@ const saveBtn = document.getElementById("saveBtn");
 const resetBtn = document.getElementById("resetBtn");
 
 let editingId = null;
+let adminAllowed = false;
+
+onAuthStateChanged(auth, (user) => {
+  const email = (user?.email || "").toLowerCase();
+
+  if (!user || !ADMIN_EMAILS.includes(email)) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  adminAllowed = true;
+  adminEmailInfo.textContent = "مسجل الدخول: " + email;
+});
+
+logoutBtn.addEventListener("click", async () => {
+  await signOut(auth);
+  window.location.href = "login.html";
+});
 
 function showNotice(text) {
   noticeBox.textContent = text;
@@ -60,9 +105,7 @@ function renderPreview() {
   previewList.innerHTML = "";
 
   if (!images.length) {
-    previewList.innerHTML = `
-      <div class="empty-box">لا توجد صور للمعاينة حالياً</div>
-    `;
+    previewList.innerHTML = `<div class="empty-box">لا توجد صور للمعاينة حالياً</div>`;
     return;
   }
 
@@ -113,6 +156,8 @@ function normalizeProduct(id, data) {
 }
 
 saveBtn.addEventListener("click", async () => {
+  if (!adminAllowed) return;
+
   const name = nameInput.value.trim();
   const category = categoryInput.value;
   const price = Number(priceInput.value);
@@ -174,6 +219,7 @@ function editProduct(product) {
 }
 
 async function removeProduct(id) {
+  if (!adminAllowed) return;
   if (!confirm("حذف المنتج؟")) return;
 
   try {
