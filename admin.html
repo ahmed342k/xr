@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html dir="rtl">
+<head>
+
+<meta charset="UTF-8">
+<title>لوحة الادمن</title>
+
+</head>
+
+<body>
+
+<h2>اضافة منتج</h2>
+
+<input id="name" placeholder="اسم المنتج">
+
+<input id="price" placeholder="السعر">
+
+<input id="image" placeholder="رابط الصورة">
+
+<button onclick="addProduct()">اضافة</button>
+
+<script type="module">
+
+import { db } from "./firebase.js";
+
+import {
+collection,
+addDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+async function addProduct(){
+
+const name=document.getElementById("name").value;
+const price=document.getElementById("price").value;
+const image=document.getElementById("image").value;
+
+await addDoc(collection(db,"products"),{
+
+name:name,
+price:price,
+image:image
+
+});
+
+alert("تم اضافة المنتج");
+
+}
+
+window.addProduct=addProduct;
+
+</script>
+
+</body>
+</html>
