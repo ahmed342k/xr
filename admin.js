@@ -56,23 +56,7 @@ const resetBtn = document.getElementById("resetBtn");
 
 let editingId = null;
 let adminAllowed = false;
-
-onAuthStateChanged(auth, (user) => {
-  const email = (user?.email || "").toLowerCase();
-
-  if (!user || !ADMIN_EMAILS.includes(email)) {
-    window.location.href = "login.html";
-    return;
-  }
-
-  adminAllowed = true;
-  adminEmailInfo.textContent = "مسجل الدخول: " + email;
-});
-
-logoutBtn.addEventListener("click", async () => {
-  await signOut(auth);
-  window.location.href = "login.html";
-});
+let authChecked = false;
 
 function showNotice(text) {
   noticeBox.textContent = text;
@@ -117,9 +101,6 @@ function renderPreview() {
   });
 }
 
-mainImageInput.addEventListener("input", renderPreview);
-moreImagesInput.addEventListener("input", renderPreview);
-
 function resetForm() {
   editingId = null;
   formTitle.textContent = "إضافة منتج";
@@ -133,8 +114,6 @@ function resetForm() {
   descriptionInput.value = "";
   renderPreview();
 }
-
-resetBtn.addEventListener("click", resetForm);
 
 function normalizeProduct(id, data) {
   const images = Array.isArray(data.images)
@@ -154,54 +133,6 @@ function normalizeProduct(id, data) {
       : ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80"]
   };
 }
-
-saveBtn.addEventListener("click", async () => {
-  if (!adminAllowed) return;
-
-  const name = nameInput.value.trim();
-  const category = categoryInput.value;
-  const price = Number(priceInput.value);
-  const oldPrice = Number(oldPriceInput.value || 0);
-  const badge = badgeInput.value.trim() || "منتج";
-  const description = descriptionInput.value.trim() || "لا يوجد وصف لهذا المنتج.";
-  const images = buildImagesArray();
-
-  if (!name || !price) {
-    alert("اكتب اسم المنتج والسعر");
-    return;
-  }
-
-  if (!images.length) {
-    alert("أضف صورة واحدة على الأقل");
-    return;
-  }
-
-  const payload = {
-    name,
-    category,
-    price,
-    oldPrice,
-    badge,
-    description,
-    image: images[0],
-    images
-  };
-
-  try {
-    if (editingId) {
-      await updateDoc(doc(db, "products", editingId), payload);
-      showNotice("تم تعديل المنتج");
-    } else {
-      await addDoc(collection(db, "products"), payload);
-      showNotice("تمت إضافة المنتج");
-    }
-
-    resetForm();
-  } catch (error) {
-    console.error(error);
-    alert("حدث خطأ أثناء الحفظ");
-  }
-});
 
 function editProduct(product) {
   editingId = product.id;
@@ -286,5 +217,95 @@ function listenProducts() {
   );
 }
 
+function protectAdminPage() {
+  onAuthStateChanged(auth, async (user) => {
+    if (authChecked) return;
+    authChecked = true;
+
+    if (!user) {
+      window.location.replace("login.html");
+      return;
+    }
+
+    const email = (user.email || "").toLowerCase();
+
+    if (!ADMIN_EMAILS.includes(email)) {
+      try {
+        await signOut(auth);
+      } catch (error) {
+        console.error(error);
+      }
+      window.location.replace("login.html");
+      return;
+    }
+
+    adminAllowed = true;
+    adminEmailInfo.textContent = "مسجل الدخول: " + email;
+  });
+}
+
+mainImageInput.addEventListener("input", renderPreview);
+moreImagesInput.addEventListener("input", renderPreview);
+
+resetBtn.addEventListener("click", resetForm);
+
+logoutBtn.addEventListener("click", async () => {
+  try {
+    await signOut(auth);
+  } catch (error) {
+    console.error(error);
+  }
+  window.location.replace("login.html");
+});
+
+saveBtn.addEventListener("click", async () => {
+  if (!adminAllowed) return;
+
+  const name = nameInput.value.trim();
+  const category = categoryInput.value;
+  const price = Number(priceInput.value);
+  const oldPrice = Number(oldPriceInput.value || 0);
+  const badge = badgeInput.value.trim() || "منتج";
+  const description = descriptionInput.value.trim() || "لا يوجد وصف لهذا المنتج.";
+  const images = buildImagesArray();
+
+  if (!name || !price) {
+    alert("اكتب اسم المنتج والسعر");
+    return;
+  }
+
+  if (!images.length) {
+    alert("أضف صورة واحدة على الأقل");
+    return;
+  }
+
+  const payload = {
+    name,
+    category,
+    price,
+    oldPrice,
+    badge,
+    description,
+    image: images[0],
+    images
+  };
+
+  try {
+    if (editingId) {
+      await updateDoc(doc(db, "products", editingId), payload);
+      showNotice("تم تعديل المنتج");
+    } else {
+      await addDoc(collection(db, "products"), payload);
+      showNotice("تمت إضافة المنتج");
+    }
+
+    resetForm();
+  } catch (error) {
+    console.error(error);
+    alert("حدث خطأ أثناء الحفظ");
+  }
+});
+
 renderPreview();
+protectAdminPage();
 listenProducts();
