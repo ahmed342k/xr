@@ -20,7 +20,7 @@ const ADMIN_EMAILS = [
   "raedhammd22@gmail.com"
 ].map((v) => v.toLowerCase().trim());
 
-const WORKER_UPLOAD_URL = "https://fancy-frog-4273.ohkvchnjvbnb.workers.dev";
+const WORKER_UPLOAD_URL = "https://sparkling-hall-7749.ohkvchnjvbnb.workers.dev";
 
 const authLoading = document.getElementById("authLoading");
 const adminApp = document.getElementById("adminApp");
