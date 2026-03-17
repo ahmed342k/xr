@@ -1,527 +1,139 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>XR Admin</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة الادمن</title>
+
   <style>
-    *{
-      box-sizing:border-box;
-      margin:0;
-      padding:0;
-      -webkit-tap-highlight-color:transparent;
-      font-family:"Tahoma", Arial, sans-serif;
+    body {
+      margin: 0;
+      font-family: Tahoma, Arial;
+      background: #0f172a;
+      color: #fff;
     }
 
-    :root{
-      --bg:#eef2f7;
-      --card:#ffffff;
-      --text:#0f172a;
-      --muted:#6b7280;
-      --line:#e5e7eb;
-      --primary:#16a3a0;
-      --primary-dark:#0f8a87;
-      --danger:#ef4444;
-      --danger-dark:#dc2626;
-      --shadow:0 20px 50px rgba(15, 23, 42, 0.10);
-      --radius:30px;
+    .container {
+      max-width: 500px;
+      margin: auto;
+      padding: 20px;
     }
 
-    body{
-      background:var(--bg);
-      color:var(--text);
-      min-height:100vh;
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
     }
 
-    .auth-loading-screen{
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:24px;
+    input, textarea, select {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+      background: #1e293b;
+      color: #fff;
     }
 
-    .auth-loading-card{
-      width:min(460px,100%);
-      background:var(--card);
-      border-radius:36px;
-      box-shadow:var(--shadow);
-      padding:34px 26px;
-      text-align:center;
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 8px;
+      border: none;
+      border-radius: 10px;
+      background: #22c55e;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
     }
 
-    .auth-loading-card h2{
-      font-size:44px;
-      line-height:1.2;
-      margin-bottom:14px;
-      color:var(--text);
-      font-weight:800;
+    button:hover {
+      opacity: 0.9;
     }
 
-    .auth-loading-card p{
-      color:var(--muted);
-      font-size:18px;
-      line-height:2;
+    .danger {
+      background: #ef4444;
+      color: #fff;
     }
 
-    .admin-shell{
-      min-height:100vh;
-      padding:26px 14px 40px;
-      display:flex;
-      justify-content:center;
+    .preview-box {
+      margin-top: 10px;
     }
 
-    .admin-phone{
-      width:100%;
-      max-width:470px;
-      background:var(--card);
-      border-radius:38px;
-      overflow:hidden;
-      box-shadow:var(--shadow);
-      border:1px solid rgba(255,255,255,.6);
+    .preview-box img {
+      width: 100%;
+      border-radius: 10px;
     }
 
-    .admin-hero{
-      background:linear-gradient(180deg, #29b8b6 0%, #16a3a0 60%, #149692 100%);
-      padding:34px 22px 110px;
-      position:relative;
+    .product {
+      background: #1e293b;
+      padding: 10px;
+      border-radius: 10px;
+      margin-top: 10px;
     }
 
-    .brand{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-      color:#fff;
-      font-weight:900;
-      font-size:26px;
-      letter-spacing:.5px;
+    .notice {
+      position: fixed;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #22c55e;
+      color: #000;
+      padding: 10px 20px;
+      border-radius: 10px;
+      display: none;
     }
 
-    .brand span{
-      display:inline-block;
-      color:#ffe66d;
-    }
-
-    .hero-sub{
-      text-align:center;
-      color:rgba(255,255,255,.88);
-      font-size:15px;
-      margin-top:10px;
-      line-height:1.8;
-    }
-
-    .admin-card{
-      background:#f9fbfd;
-      margin:-72px 14px 16px;
-      border-radius:32px;
-      padding:22px 16px 20px;
-      border:1px solid #edf1f6;
-      position:relative;
-      z-index:2;
-    }
-
-    .section-title{
-      text-align:center;
-      font-size:28px;
-      font-weight:900;
-      margin-bottom:8px;
-      color:var(--text);
-    }
-
-    .section-sub{
-      text-align:center;
-      color:var(--muted);
-      font-size:14px;
-      line-height:1.8;
-      margin-bottom:18px;
-    }
-
-    .top-mini{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:18px;
-      flex-wrap:wrap;
-    }
-
-    .admin-email{
-      color:var(--muted);
-      font-size:13px;
-      background:#fff;
-      border:1px solid var(--line);
-      padding:10px 14px;
-      border-radius:999px;
-      flex:1;
-      min-width:220px;
-    }
-
-    .field{
-      margin-bottom:14px;
-    }
-
-    .field label{
-      display:block;
-      font-size:14px;
-      font-weight:800;
-      margin-bottom:8px;
-      color:var(--text);
-    }
-
-    .field input,
-    .field select,
-    .field textarea{
-      width:100%;
-      border:none;
-      outline:none;
-      background:#fff;
-      border:1.5px solid #e7ebf0;
-      border-radius:18px;
-      padding:16px 15px;
-      font-size:15px;
-      color:var(--text);
-      transition:.2s ease;
-    }
-
-    .field input:focus,
-    .field select:focus,
-    .field textarea:focus{
-      border-color:#9edddb;
-      box-shadow:0 0 0 4px rgba(22,163,160,.10);
-    }
-
-    .field textarea{
-      min-height:120px;
-      resize:vertical;
-    }
-
-    .grid-2{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
-    }
-
-    .hint{
-      color:var(--muted);
-      font-size:12px;
-      margin-top:6px;
-      line-height:1.7;
-    }
-
-    .preview-list{
-      display:grid;
-      grid-template-columns:repeat(2,1fr);
-      gap:10px;
-      margin-top:10px;
-    }
-
-    .preview-box{
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:18px;
-      overflow:hidden;
-      aspect-ratio:1/1;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-
-    .preview-box img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      display:block;
-    }
-
-    .empty-box{
-      background:#fff;
-      color:var(--muted);
-      border:1px dashed #d6dce5;
-      border-radius:18px;
-      padding:18px;
-      text-align:center;
-      line-height:1.8;
-      grid-column:1/-1;
-    }
-
-    .admin-actions{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:18px;
-    }
-
-    .admin-btn,
-    .admin-btn-light,
-    .admin-btn-danger{
-      border:none;
-      outline:none;
-      cursor:pointer;
-      border-radius:999px;
-      padding:15px 18px;
-      font-size:16px;
-      font-weight:900;
-      transition:.2s ease;
-      min-height:54px;
-    }
-
-    .admin-btn{
-      flex:1;
-      background:var(--primary);
-      color:#fff;
-      box-shadow:0 12px 24px rgba(22,163,160,.22);
-    }
-
-    .admin-btn:hover{
-      background:var(--primary-dark);
-    }
-
-    .admin-btn-light{
-      background:#fff;
-      color:var(--text);
-      border:1.5px solid var(--line);
-      text-decoration:none;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      flex:1;
-    }
-
-    .admin-btn-danger{
-      background:var(--danger);
-      color:#fff;
-      flex:1;
-    }
-
-    .admin-btn-danger:hover{
-      background:var(--danger-dark);
-    }
-
-    .notice{
-      position:sticky;
-      top:12px;
-      z-index:30;
-      margin-bottom:14px;
-      background:#111827;
-      color:#fff;
-      padding:14px 18px;
-      border-radius:18px;
-      text-align:center;
-      opacity:0;
-      visibility:hidden;
-      transform:translateY(-8px);
-      transition:.22s ease;
-      font-size:14px;
-      box-shadow:0 10px 30px rgba(0,0,0,.14);
-    }
-
-    .notice.show{
-      opacity:1;
-      visibility:visible;
-      transform:translateY(0);
-    }
-
-    .list-card{
-      margin:0 14px 16px;
-      background:#f9fbfd;
-      border:1px solid #edf1f6;
-      border-radius:32px;
-      padding:20px 16px;
-    }
-
-    .list-title{
-      font-size:24px;
-      font-weight:900;
-      margin-bottom:14px;
-    }
-
-    .admin-products{
-      display:grid;
-      gap:12px;
-    }
-
-    .admin-product{
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:24px;
-      padding:12px;
-    }
-
-    .admin-product-row{
-      display:flex;
-      gap:12px;
-      align-items:flex-start;
-    }
-
-    .admin-thumb{
-      width:92px;
-      min-width:92px;
-      height:92px;
-      border-radius:20px;
-      overflow:hidden;
-      border:1px solid var(--line);
-      background:#f3f4f6;
-    }
-
-    .admin-thumb img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      display:block;
-    }
-
-    .admin-product h3{
-      font-size:18px;
-      margin-bottom:6px;
-      font-weight:900;
-      line-height:1.5;
-    }
-
-    .admin-product p{
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.8;
-      margin-bottom:6px;
-    }
-
-    .admin-product-price{
-      color:var(--text);
-      font-weight:900;
-      margin-bottom:6px;
-      font-size:15px;
-    }
-
-    @media (max-width:460px){
-      .auth-loading-card h2{
-        font-size:34px;
-      }
-
-      .section-title{
-        font-size:24px;
-      }
-
-      .grid-2{
-        grid-template-columns:1fr;
-      }
-
-      .admin-product-row{
-        flex-direction:column;
-      }
-
-      .admin-thumb{
-        width:100%;
-        height:180px;
-      }
+    .notice.show {
+      display: block;
     }
   </style>
 </head>
+
 <body>
-  <div id="authLoading" class="auth-loading-screen">
-    <div class="auth-loading-card">
-      <h2>جاري التحقق</h2>
-      <p>لحظة، يتم التأكد من صلاحية الدخول إلى لوحة الأدمن.</p>
-    </div>
-  </div>
 
-  <div id="adminApp" style="display:none;">
-    <div class="admin-shell">
-      <div class="admin-phone">
-        <div class="admin-hero">
-          <div class="brand">XR <span>ADMIN</span></div>
-          <p class="hero-sub">لوحة إدارة احترافية لإضافة المنتجات وتعديلها ورفع الصور مباشرة.</p>
-        </div>
+<div class="container">
 
-        <div class="admin-card">
-          <div id="noticeBox" class="notice">تم الحفظ</div>
+  <h1 id="formTitle">إضافة منتج</h1>
 
-          <div class="top-mini">
-            <div id="adminEmailInfo" class="admin-email">مسجل الدخول:</div>
-          </div>
+  <div id="adminEmailInfo"></div>
 
-          <h2 id="formTitle" class="section-title">إضافة منتج</h2>
-          <p class="section-sub">أدخل بيانات المنتج، ارفع الصور، ثم اضغط حفظ المنتج.</p>
+  <input id="name" placeholder="اسم المنتج">
+  <input id="price" type="number" placeholder="السعر">
+  <input id="oldPrice" type="number" placeholder="السعر قبل الخصم">
+  
+  <select id="category">
+    <option value="electronics">الكترونيات</option>
+    <option value="accessories">اكسسوارات</option>
+  </select>
 
-          <div class="grid-2">
-            <div class="field">
-              <label for="name">اسم المنتج</label>
-              <input type="text" id="name" placeholder="اكتب اسم المنتج">
-            </div>
+  <input id="badge" placeholder="شارة (جديد، عرض...)">
 
-            <div class="field">
-              <label for="category">الفئة</label>
-              <select id="category">
-                <option value="accessories">الإكسسوارات</option>
-                <option value="electronics">الإلكترونيات</option>
-                <option value="home">المنزل</option>
-                <option value="office">المكتب</option>
-                <option value="smart">الذكية</option>
-              </select>
-            </div>
-          </div>
+  <!-- 🔥 رفع صورة -->
+  <input type="file" id="fileInput">
+  <button id="uploadBtn">رفع صورة</button>
 
-          <div class="grid-2">
-            <div class="field">
-              <label for="price">السعر الحالي</label>
-              <input type="number" id="price" placeholder="مثال 149">
-            </div>
+  <input id="mainImage" placeholder="رابط الصورة الرئيسية">
 
-            <div class="field">
-              <label for="oldPrice">السعر قبل الخصم</label>
-              <input type="number" id="oldPrice" placeholder="مثال 199">
-            </div>
-          </div>
+  <textarea id="moreImages" placeholder="روابط صور اضافية (كل رابط بسطر)"></textarea>
 
-          <div class="field">
-            <label for="badge">شارة المنتج</label>
-            <input type="text" id="badge" placeholder="مثال: الأكثر طلباً">
-          </div>
+  <textarea id="description" placeholder="وصف المنتج"></textarea>
 
-          <div class="field">
-            <label for="mainImage">الصورة الرئيسية</label>
-            <input type="file" id="mainImage" accept="image/*">
-            <div class="hint">ارفع الصورة الأساسية للمنتج.</div>
-          </div>
+  <div id="previewList"></div>
 
-          <div class="field">
-            <label for="moreImages">صور إضافية</label>
-            <input type="file" id="moreImages" accept="image/*" multiple>
-            <div class="hint">يمكنك اختيار أكثر من صورة دفعة واحدة.</div>
-          </div>
+  <button id="saveBtn">حفظ المنتج</button>
+  <button id="resetBtn">تفريغ</button>
+  <button id="logoutBtn" class="danger">تسجيل خروج</button>
 
-          <div class="field">
-            <label for="description">وصف المنتج</label>
-            <textarea id="description" placeholder="اكتب وصفًا واضحًا ومقنعًا للمنتج"></textarea>
-          </div>
+  <h2>المنتجات الحالية</h2>
+  <div id="productsList"></div>
 
-          <div class="field">
-            <label>معاينة الصور</label>
-            <div id="previewList" class="preview-list">
-              <div class="empty-box">لا توجد صور للمعاينة حالياً</div>
-            </div>
-          </div>
+</div>
 
-          <div class="admin-actions">
-            <button id="saveBtn" class="admin-btn">حفظ المنتج</button>
-            <button id="resetBtn" type="button" class="admin-btn-light">تفريغ الحقول</button>
-          </div>
+<div id="noticeBox" class="notice"></div>
 
-          <div class="admin-actions" style="margin-top:10px;">
-            <a href="index.html" class="admin-btn-light">فتح المتجر</a>
-            <button id="logoutBtn" type="button" class="admin-btn-danger">تسجيل الخروج</button>
-          </div>
-        </div>
+<!-- 🔥 ربط السكربت -->
+<script type="module" src="admin.js"></script>
 
-        <div class="list-card">
-          <h2 class="list-title">المنتجات الحالية</h2>
-          <div id="productsList" class="admin-products">
-            <div class="empty-box">جاري تحميل المنتجات...</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script type="module" src="admin.js"></script>
 </body>
 </html>
