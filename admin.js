@@ -15,16 +15,16 @@ import {
   signOut
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
+/* 🔥 رابط Worker */
+const WORKER_UPLOAD_URL = "https://sparkling-hall-7749.ohkvchnjvbnb.workers.dev";
+
+/* 🔐 الادمن */
 const ADMIN_EMAILS = [
   "ohkvchnjvbnb@gmail.com",
   "raedhammd22@gmail.com"
-].map((v) => v.toLowerCase().trim());
+];
 
-const WORKER_UPLOAD_URL = "https://sparkling-hall-7749.ohkvchnjvbnb.workers.dev";
-
-const authLoading = document.getElementById("authLoading");
-const adminApp = document.getElementById("adminApp");
-
+/* عناصر الصفحة */
 const formTitle = document.getElementById("formTitle");
 const noticeBox = document.getElementById("noticeBox");
 const productsList = document.getElementById("productsList");
@@ -44,114 +44,97 @@ const previewList = document.getElementById("previewList");
 const saveBtn = document.getElementById("saveBtn");
 const resetBtn = document.getElementById("resetBtn");
 
+/* 🔥 زر رفع */
+const uploadBtn = document.getElementById("uploadBtn");
+const fileInput = document.getElementById("fileInput");
+
 let editingId = null;
 let adminAllowed = false;
-let authChecked = false;
-let currentEditingImages = [];
+let authResolved = false;
 
+/* إشعار */
 function showNotice(text) {
   noticeBox.textContent = text;
   noticeBox.classList.add("show");
-  clearTimeout(window.noticeTimer);
-  window.noticeTimer = setTimeout(() => {
-    noticeBox.classList.remove("show");
-  }, 1600);
+  setTimeout(() => noticeBox.classList.remove("show"), 1500);
 }
 
-function escapeHtml(text) {
-  return String(text || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-function safeNumber(value) {
-  const n = Number(value);
-  return Number.isFinite(n) ? n : 0;
-}
-
-function showAdminApp(email) {
-  adminAllowed = true;
-  adminEmailInfo.textContent = "مسجل الدخول: " + email;
-  authLoading.style.display = "none";
-  adminApp.style.display = "block";
-}
-
-function hideAdminApp() {
-  adminAllowed = false;
-  adminApp.style.display = "none";
-  authLoading.style.display = "flex";
-}
-
-async function goLogin() {
-  hideAdminApp();
-  window.location.replace("login.html");
-}
-
+/* 🔥 رفع صورة */
 async function uploadImage(file) {
   const formData = new FormData();
   formData.append("file", file);
 
-  const response = await fetch(WORKER_UPLOAD_URL, {
+  const res = await fetch(WORKER_UPLOAD_URL, {
     method: "POST",
     body: formData
   });
 
-  if (!response.ok) {
-    const errorText = await response.text().catch(() => "فشل رفع الصورة");
-    throw new Error(errorText || "فشل رفع الصورة");
-  }
+  if (!res.ok) throw new Error("Upload failed");
 
-  const data = await response.json();
-
-  if (!data.url) {
-    throw new Error("لم يتم إرجاع رابط الصورة");
-  }
-
+  const data = await res.json();
   return data.url;
 }
 
-function renderPreviewFromUrls(urls = []) {
-  previewList.innerHTML = "";
-
-  if (!urls.length) {
-    previewList.innerHTML = `<div class="empty-box">لا توجد صور للمعاينة حالياً</div>`;
+/* زر الرفع */
+uploadBtn?.addEventListener("click", async () => {
+  if (!fileInput.files.length) {
+    alert("اختر صورة أولاً");
     return;
   }
 
-  urls.forEach((src) => {
+  try {
+    showNotice("جاري رفع الصورة...");
+    const url = await uploadImage(fileInput.files[0]);
+
+    mainImageInput.value = url;
+    renderPreview();
+
+    showNotice("تم رفع الصورة");
+  } catch (e) {
+    console.error(e);
+    alert("فشل رفع الصورة");
+  }
+});
+
+/* بناء الصور */
+function buildImagesArray() {
+  const arr = [];
+  const main = mainImageInput.value.trim();
+  if (main) arr.push(main);
+
+  const more = moreImagesInput.value
+    .split("\n")
+    .map(v => v.trim())
+    .filter(Boolean);
+
+  more.forEach(url => {
+    if (!arr.includes(url)) arr.push(url);
+  });
+
+  return arr;
+}
+
+/* عرض الصور */
+function renderPreview() {
+  const images = buildImagesArray();
+  previewList.innerHTML = "";
+
+  if (!images.length) {
+    previewList.innerHTML = `<div class="empty-box">لا توجد صور</div>`;
+    return;
+  }
+
+  images.forEach(src => {
     const box = document.createElement("div");
     box.className = "preview-box";
-    box.innerHTML = `<img src="${escapeHtml(src)}" alt="preview">`;
+    box.innerHTML = `<img src="${src}">`;
     previewList.appendChild(box);
   });
 }
 
-function renderPreviewFromFiles() {
-  const list = [];
-
-  const mainFile = mainImageInput.files?.[0];
-  if (mainFile) {
-    list.push(URL.createObjectURL(mainFile));
-  } else if (currentEditingImages[0]) {
-    list.push(currentEditingImages[0]);
-  }
-
-  const moreFiles = Array.from(moreImagesInput.files || []);
-  if (moreFiles.length) {
-    moreFiles.forEach((file) => list.push(URL.createObjectURL(file)));
-  } else if (currentEditingImages.length > 1) {
-    list.push(...currentEditingImages.slice(1));
-  }
-
-  renderPreviewFromUrls(list);
-}
-
+/* إعادة تعيين */
 function resetForm() {
   editingId = null;
-  currentEditingImages = [];
   formTitle.textContent = "إضافة منتج";
   nameInput.value = "";
   categoryInput.value = "accessories";
@@ -161,234 +144,120 @@ function resetForm() {
   mainImageInput.value = "";
   moreImagesInput.value = "";
   descriptionInput.value = "";
-  saveBtn.disabled = false;
-  saveBtn.textContent = "حفظ المنتج";
-  renderPreviewFromUrls([]);
+  renderPreview();
 }
 
-function normalizeProduct(id, data) {
-  const images = Array.isArray(data.images)
-    ? data.images.filter(Boolean)
-    : (data.image ? [data.image] : []);
-
-  return {
-    id,
-    name: data.name || "منتج بدون اسم",
-    price: safeNumber(data.price),
-    oldPrice: safeNumber(data.oldPrice),
-    category: data.category || "electronics",
-    badge: data.badge || "منتج",
-    description: data.description || "لا يوجد وصف لهذا المنتج.",
-    images: images.length
-      ? images
-      : ["https://via.placeholder.com/600x600?text=XR+Store"]
-  };
-}
-
-async function collectImagesForSave() {
-  let images = [];
-
-  const mainFile = mainImageInput.files?.[0];
-  const moreFiles = Array.from(moreImagesInput.files || []);
-
-  if (mainFile) {
-    const mainUrl = await uploadImage(mainFile);
-    images.push(mainUrl);
-  } else if (editingId && currentEditingImages[0]) {
-    images.push(currentEditingImages[0]);
-  }
-
-  if (moreFiles.length) {
-    for (const file of moreFiles) {
-      const url = await uploadImage(file);
-      images.push(url);
-    }
-  } else if (editingId && currentEditingImages.length > 1) {
-    images.push(...currentEditingImages.slice(1));
-  }
-
-  return images.filter(Boolean);
-}
-
-function editProduct(product) {
-  editingId = product.id;
-  currentEditingImages = Array.isArray(product.images) ? [...product.images] : [];
-  formTitle.textContent = "تعديل المنتج";
-  nameInput.value = product.name;
-  categoryInput.value = product.category;
-  priceInput.value = product.price;
-  oldPriceInput.value = product.oldPrice || "";
-  badgeInput.value = product.badge || "";
-  mainImageInput.value = "";
-  moreImagesInput.value = "";
-  descriptionInput.value = product.description || "";
-  renderPreviewFromUrls(currentEditingImages);
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-async function removeProduct(id) {
+/* حفظ */
+saveBtn.addEventListener("click", async () => {
   if (!adminAllowed) return;
-  if (!confirm("حذف المنتج؟")) return;
 
-  try {
-    await deleteDoc(doc(db, "products", id));
-    showNotice("تم حذف المنتج");
-    if (editingId === id) resetForm();
-  } catch (error) {
-    console.error(error);
-    alert("حدث خطأ أثناء الحذف");
-  }
-}
+  const name = nameInput.value.trim();
+  const price = Number(priceInput.value);
+  const images = buildImagesArray();
 
-function renderProducts(items) {
-  productsList.innerHTML = "";
-
-  if (!items.length) {
-    productsList.innerHTML = '<div class="empty-box">لا توجد منتجات حالياً</div>';
+  if (!name || !price) {
+    alert("اكتب الاسم والسعر");
     return;
   }
 
-  items.forEach((product) => {
+  if (!images.length) {
+    alert("ارفع صورة");
+    return;
+  }
+
+  const payload = {
+    name,
+    category: categoryInput.value,
+    price,
+    oldPrice: Number(oldPriceInput.value || 0),
+    badge: badgeInput.value || "منتج",
+    description: descriptionInput.value || "",
+    image: images[0],
+    images
+  };
+
+  try {
+    if (editingId) {
+      await updateDoc(doc(db, "products", editingId), payload);
+      showNotice("تم التعديل");
+    } else {
+      await addDoc(collection(db, "products"), payload);
+      showNotice("تمت الإضافة");
+    }
+    resetForm();
+  } catch (e) {
+    console.error(e);
+    alert("خطأ بالحفظ");
+  }
+});
+
+/* عرض المنتجات */
+function renderProducts(items) {
+  productsList.innerHTML = "";
+
+  items.forEach(product => {
     const item = document.createElement("div");
-    item.className = "admin-product";
     item.innerHTML = `
-      <div class="admin-product-row">
-        <div class="admin-thumb">
-          <img src="${escapeHtml(product.images[0])}" alt="${escapeHtml(product.name)}">
-        </div>
-
-        <div style="flex:1">
-          <h3>${escapeHtml(product.name)}</h3>
-          <p>${escapeHtml(product.description)}</p>
-          <div class="admin-product-price">
-            ${product.price} ر.س
-            ${product.oldPrice ? `- قبل الخصم ${product.oldPrice} ر.س` : ""}
-          </div>
-          <p>الفئة: ${escapeHtml(product.category)} | عدد الصور: ${product.images.length}</p>
-
-          <div class="admin-actions">
-            <button class="admin-btn">تعديل</button>
-            <button class="admin-btn-danger">حذف</button>
-          </div>
-        </div>
-      </div>
+      <h3>${product.name}</h3>
+      <img src="${product.image}" style="width:80px">
+      <button class="edit">تعديل</button>
+      <button class="delete">حذف</button>
     `;
 
-    const buttons = item.querySelectorAll("button");
-    buttons[0].addEventListener("click", () => editProduct(product));
-    buttons[1].addEventListener("click", () => removeProduct(product.id));
+    item.querySelector(".edit").onclick = () => {
+      editingId = product.id;
+      nameInput.value = product.name;
+      priceInput.value = product.price;
+      mainImageInput.value = product.image;
+      renderPreview();
+    };
+
+    item.querySelector(".delete").onclick = async () => {
+      await deleteDoc(doc(db, "products", product.id));
+      showNotice("تم الحذف");
+    };
 
     productsList.appendChild(item);
   });
 }
 
-function startProductsListener() {
-  const productsRef = query(collection(db, "products"), orderBy("name"));
-  onSnapshot(
-    productsRef,
-    (snapshot) => {
-      const items = snapshot.docs.map((d) => normalizeProduct(d.id, d.data()));
-      renderProducts(items);
-    },
-    (error) => {
-      console.error(error);
-      productsList.innerHTML = '<div class="empty-box">فشل تحميل المنتجات. تأكد من Firestore Rules وأن Test Mode شغال.</div>';
-    }
-  );
+/* تحميل المنتجات */
+function listenProducts() {
+  const q = query(collection(db, "products"), orderBy("name"));
+  onSnapshot(q, snap => {
+    const items = snap.docs.map(d => ({
+      id: d.id,
+      ...d.data()
+    }));
+    renderProducts(items);
+  });
 }
 
-mainImageInput.addEventListener("change", renderPreviewFromFiles);
-moreImagesInput.addEventListener("change", renderPreviewFromFiles);
-
-resetBtn.addEventListener("click", resetForm);
-
-logoutBtn.addEventListener("click", async () => {
-  try {
-    await signOut(auth);
-  } catch (error) {
-    console.error(error);
-  }
-  await goLogin();
-});
-
-saveBtn.addEventListener("click", async () => {
-  if (!adminAllowed) return;
-
-  const name = nameInput.value.trim();
-  const category = categoryInput.value;
-  const price = safeNumber(priceInput.value);
-  const oldPrice = safeNumber(oldPriceInput.value || 0);
-  const badge = badgeInput.value.trim() || "منتج";
-  const description = descriptionInput.value.trim() || "لا يوجد وصف لهذا المنتج.";
-
-  if (!name || !price) {
-    alert("اكتب اسم المنتج والسعر");
-    return;
-  }
-
-  saveBtn.disabled = true;
-  saveBtn.textContent = "جاري الرفع والحفظ...";
-
-  try {
-    const images = await collectImagesForSave();
-
-    if (!images.length) {
-      alert("أضف صورة واحدة على الأقل");
-      saveBtn.disabled = false;
-      saveBtn.textContent = "حفظ المنتج";
-      return;
-    }
-
-    const payload = {
-      name,
-      category,
-      price,
-      oldPrice,
-      badge,
-      description,
-      image: images[0],
-      images
-    };
-
-    if (editingId) {
-      await updateDoc(doc(db, "products", editingId), payload);
-      showNotice("تم تعديل المنتج");
-    } else {
-      await addDoc(collection(db, "products"), payload);
-      showNotice("تمت إضافة المنتج");
-    }
-
-    resetForm();
-  } catch (error) {
-    console.error(error);
-    alert("حدث خطأ أثناء الرفع أو الحفظ:\n" + error.message);
-    saveBtn.disabled = false;
-    saveBtn.textContent = "حفظ المنتج";
-  }
-});
-
-onAuthStateChanged(auth, async (user) => {
-  if (authChecked) return;
-  authChecked = true;
+/* تسجيل الدخول */
+onAuthStateChanged(auth, async user => {
+  if (authResolved) return;
+  authResolved = true;
 
   if (!user) {
-    await goLogin();
+    window.location.replace("login.html");
     return;
   }
 
-  const email = (user.email || "").toLowerCase().trim();
+  const email = user.email.toLowerCase();
 
   if (!ADMIN_EMAILS.includes(email)) {
-    try {
-      await signOut(auth);
-    } catch (error) {
-      console.error(error);
-    }
-    await goLogin();
+    await signOut(auth);
+    window.location.replace("login.html");
     return;
   }
 
-  showAdminApp(email);
-  renderPreviewFromUrls([]);
-  startProductsListener();
+  adminAllowed = true;
+  adminEmailInfo.textContent = email;
+  listenProducts();
 });
+
+/* خروج */
+logoutBtn.onclick = async () => {
+  await signOut(auth);
+  window.location.replace("login.html");
+};
