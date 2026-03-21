@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>XR Store Admin - تسجيل الدخول</title>
+
   <style>
     *{
       box-sizing:border-box;
@@ -272,7 +273,17 @@
             <path d="M20 21C20 17.6863 16.4183 15 12 15C7.58172 15 4 17.6863 4 21"/>
             <circle cx="12" cy="8" r="4"/>
           </svg>
-          <input id="displayName" class="input" type="text" placeholder="الاسم الذي سيظهر بعد الدخول" />
+          <input id="adminName" class="input" type="text" placeholder="الاسم الذي يظهر داخل الأدمن" />
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="#2daeff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="11" width="16" height="10" rx="2"/>
+            <path d="M8 11V8C8 5.79086 9.79086 4 12 4C14.2091 4 16 5.79086 16 8V11"/>
+          </svg>
+          <input id="email" class="input" type="email" placeholder="البريد الإلكتروني" />
         </div>
       </div>
 
@@ -287,7 +298,7 @@
       </div>
 
       <div class="help-row">
-        <span>نسيت كلمة المرور؟ عدّلها من داخل الملف إذا تريد.</span>
+        <span>بعد تسجيل الدخول، راح يظهر الاسم داخل لوحة الأدمن.</span>
       </div>
 
       <button id="loginBtn" class="submit-btn" type="submit">تسجيل الدخول</button>
@@ -295,18 +306,25 @@
       <div id="notice" class="notice"></div>
 
       <div class="footer-note">
-        ليس لديك حساب؟ هذا دخول داخلي للوحة الأدمن فقط
+        هذا الدخول خاص بالأدمن فقط
       </div>
     </form>
   </div>
 
-  <script>
-    const ADMIN_PASSWORD = "xr2026admin";
-    const STORAGE_KEY = "xr_admin_session";
+  <script type="module">
+    import { auth } from "./firebase.js";
+    import { signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const ADMIN_EMAILS = [
+      "ohkvchnjvbnb@gmail.com",
+      "raedhammd22@gmail.com"
+    ].map((email) => email.toLowerCase().trim());
+
     const NAME_KEY = "xr_admin_name";
 
     const loginForm = document.getElementById("loginForm");
-    const displayNameInput = document.getElementById("displayName");
+    const adminNameInput = document.getElementById("adminName");
+    const emailInput = document.getElementById("email");
     const passwordInput = document.getElementById("password");
     const loginBtn = document.getElementById("loginBtn");
     const notice = document.getElementById("notice");
@@ -321,20 +339,32 @@
       notice.textContent = "";
     }
 
-    if (localStorage.getItem(STORAGE_KEY) === "1") {
-      window.location.replace("admin.html");
-    }
+    onAuthStateChanged(auth, (user) => {
+      if (!user) return;
 
-    loginForm.addEventListener("submit", (e) => {
+      const email = (user.email || "").toLowerCase().trim();
+      if (ADMIN_EMAILS.includes(email)) {
+        window.location.replace("admin.html");
+      }
+    });
+
+    loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       hideNotice();
 
-      const name = (displayNameInput.value || "").trim();
+      const adminName = (adminNameInput.value || "").trim();
+      const email = (emailInput.value || "").trim().toLowerCase();
       const password = passwordInput.value || "";
 
-      if (!name) {
+      if (!adminName) {
         showNotice("اكتب الاسم أولاً.");
-        displayNameInput.focus();
+        adminNameInput.focus();
+        return;
+      }
+
+      if (!email) {
+        showNotice("اكتب البريد الإلكتروني.");
+        emailInput.focus();
         return;
       }
 
@@ -344,22 +374,38 @@
         return;
       }
 
-      if (password !== ADMIN_PASSWORD) {
-        showNotice("كلمة المرور غير صحيحة.");
+      if (!ADMIN_EMAILS.includes(email)) {
+        showNotice("هذا البريد غير مصرح له بالدخول.");
         return;
       }
 
-      loginBtn.disabled = true;
-      loginBtn.textContent = "جاري الدخول...";
+      try {
+        loginBtn.disabled = true;
+        loginBtn.textContent = "جاري الدخول...";
 
-      localStorage.setItem(STORAGE_KEY, "1");
-      localStorage.setItem(NAME_KEY, name);
+        await signInWithEmailAndPassword(auth, email, password);
 
-      showNotice("تم تسجيل الدخول بنجاح.", "success");
+        localStorage.setItem(NAME_KEY, adminName);
 
-      setTimeout(() => {
-        window.location.replace("admin.html");
-      }, 450);
+        showNotice("تم تسجيل الدخول بنجاح.", "success");
+
+        setTimeout(() => {
+          window.location.replace("admin.html");
+        }, 350);
+      } catch (error) {
+        console.error(error);
+
+        let msg = "فشل تسجيل الدخول.";
+        if (error.code === "auth/invalid-credential") msg = "البريد أو كلمة المرور غير صحيحة.";
+        else if (error.code === "auth/user-not-found") msg = "الحساب غير موجود.";
+        else if (error.code === "auth/wrong-password") msg = "كلمة المرور غير صحيحة.";
+        else if (error.code === "auth/too-many-requests") msg = "محاولات كثيرة، حاول بعد قليل.";
+
+        showNotice(msg, "error");
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.textContent = "تسجيل الدخول";
+      }
     });
   </script>
 </body>
