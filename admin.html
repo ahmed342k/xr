@@ -26,7 +26,6 @@
       --danger-dark:#dc2626;
       --input:#f6f8fb;
       --shadow:0 18px 40px rgba(15,23,42,.08);
-      --radius:28px;
     }
 
     body{
@@ -209,13 +208,6 @@
       line-height:1.7;
     }
 
-    .upload-row{
-      display:grid;
-      grid-template-columns:1fr auto;
-      gap:10px;
-      align-items:end;
-    }
-
     .preview-list{
       display:grid;
       grid-template-columns:repeat(auto-fill, minmax(120px, 1fr));
@@ -232,6 +224,7 @@
       display:flex;
       align-items:center;
       justify-content:center;
+      position:relative;
     }
 
     .preview-box img{
@@ -239,6 +232,18 @@
       height:100%;
       object-fit:cover;
       display:block;
+    }
+
+    .preview-badge{
+      position:absolute;
+      top:8px;
+      right:8px;
+      background:rgba(15,23,42,.75);
+      color:#fff;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
     }
 
     .empty-box{
@@ -349,10 +354,6 @@
       .admin-grid{
         grid-template-columns:1fr;
       }
-
-      .upload-row{
-        grid-template-columns:1fr;
-      }
     }
 
     @media (max-width: 640px){
@@ -411,7 +412,7 @@
         <div class="admin-top">
           <div>
             <h1 class="admin-title">لوحة تحكم XR</h1>
-            <p class="admin-sub">إضافة، تعديل، حذف المنتجات، مع رفع الصور مباشرة إلى GitHub من داخل لوحة الأدمن.</p>
+            <p class="admin-sub">إضافة، تعديل، حذف المنتجات، مع رفع عدة صور مباشرة من داخل لوحة الأدمن.</p>
             <div id="adminEmailInfo" class="admin-email">مسجل الدخول:</div>
           </div>
 
@@ -459,22 +460,9 @@
         </div>
 
         <div class="field">
-          <label for="fileInput">رفع الصورة الرئيسية</label>
-          <div class="upload-row">
-            <input type="file" id="fileInput" accept="image/*">
-            <button id="uploadBtn" class="admin-btn" type="button">رفع صورة</button>
-          </div>
-          <div class="hint">اختر صورة ثم اضغط رفع صورة، وسيتم وضع الرابط تلقائيًا في الحقل أدناه.</div>
-        </div>
-
-        <div class="field">
-          <label for="mainImage">رابط الصورة الرئيسية</label>
-          <input type="text" id="mainImage" placeholder="سيظهر هنا رابط الصورة بعد الرفع">
-        </div>
-
-        <div class="field">
-          <label for="moreImages">روابط صور إضافية</label>
-          <textarea id="moreImages" placeholder="كل رابط في سطر مستقل"></textarea>
+          <label for="imagesInput">رفع صور المنتج</label>
+          <input type="file" id="imagesInput" accept="image/*" multiple>
+          <div class="hint">تقدر تختار أكثر من صورة دفعة وحدة. أول صورة راح تكون الرئيسية.</div>
         </div>
 
         <div class="field">
