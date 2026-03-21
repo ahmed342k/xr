@@ -43,21 +43,33 @@ const previewList = document.getElementById("previewList");
 const saveBtn = document.getElementById("saveBtn");
 const resetBtn = document.getElementById("resetBtn");
 
+const adminNameDisplay = document.getElementById("adminNameDisplay");
+const avatarChar = document.getElementById("avatarChar");
+
+const statProducts = document.getElementById("statProducts");
+const statSelected = document.getElementById("statSelected");
+const statImages = document.getElementById("statImages");
+
+const tabs = document.querySelectorAll(".tab");
+const sections = document.querySelectorAll(".section");
+
 let editingId = null;
 let adminAllowed = false;
 let authResolved = false;
 let selectedImageFiles = [];
 let existingImages = [];
+let allProducts = [];
 
-function showNotice(text) {
+function showNotice(text, type = "success") {
   if (!noticeBox) return;
+  noticeBox.className = "notice show " + type;
   noticeBox.textContent = text;
-  noticeBox.classList.add("show");
 
   clearTimeout(window.__noticeTimer);
   window.__noticeTimer = setTimeout(() => {
-    noticeBox.classList.remove("show");
-  }, 1800);
+    noticeBox.className = "notice";
+    noticeBox.textContent = "";
+  }, 2200);
 }
 
 function escapeHtml(text) {
@@ -69,21 +81,49 @@ function escapeHtml(text) {
     .replaceAll("'", "&#039;");
 }
 
+function switchTab(tabName) {
+  tabs.forEach((tab) => {
+    tab.classList.toggle("active", tab.dataset.tab === tabName);
+  });
+
+  sections.forEach((section) => {
+    section.classList.toggle("active", section.id === "tab-" + tabName);
+  });
+}
+
+tabs.forEach((tab) => {
+  tab.addEventListener("click", () => switchTab(tab.dataset.tab));
+});
+
+function updateStats() {
+  statProducts.textContent = String(allProducts.length);
+  statSelected.textContent = String(selectedImageFiles.length || existingImages.length || 0);
+
+  const totalImages = allProducts.reduce((sum, product) => {
+    return sum + (Array.isArray(product.images) ? product.images.length : 0);
+  }, 0);
+
+  statImages.textContent = String(totalImages);
+}
+
 async function uploadImage(file) {
   const formData = new FormData();
   formData.append("file", file);
 
   const response = await fetch(WORKER_UPLOAD_URL, {
     method: "POST",
-    body: formData
+    body: formData,
+    mode: "cors",
+    cache: "no-store"
   });
 
-  let data = null;
+  const text = await response.text();
 
+  let data = null;
   try {
-    data = await response.json();
+    data = JSON.parse(text);
   } catch (error) {
-    throw new Error("فشل قراءة استجابة الرفع");
+    throw new Error("استجابة غير صالحة من السيرفر: " + text);
   }
 
   if (!response.ok || !data?.success || !data?.url) {
@@ -95,11 +135,8 @@ async function uploadImage(file) {
 
 function buildPreviewSources() {
   if (selectedImageFiles.length) {
-    return selectedImageFiles.map((file) => ({
+    return selectedImageFiles.map((file, index) => ({
       src: URL.createObjectURL(file),
-      isMain: false
-    })).map((item, index) => ({
-      ...item,
       isMain: index === 0
     }));
   }
@@ -116,6 +153,7 @@ function renderPreview() {
 
   if (!images.length) {
     previewList.innerHTML = `<div class="empty-box">لا توجد صور للمعاينة حالياً</div>`;
+    updateStats();
     return;
   }
 
@@ -128,14 +166,16 @@ function renderPreview() {
     `;
     previewList.appendChild(box);
   });
+
+  updateStats();
 }
 
 function resetForm() {
   editingId = null;
-  formTitle.textContent = "إضافة منتج";
+  formTitle.textContent = "إضافة منتج جديد";
 
   nameInput.value = "";
-  categoryInput.value = "accessories";
+  categoryInput.value = "electronics";
   priceInput.value = "";
   oldPriceInput.value = "";
   badgeInput.value = "";
@@ -149,6 +189,7 @@ function resetForm() {
   saveBtn.textContent = "حفظ المنتج";
 
   renderPreview();
+  switchTab("add");
 }
 
 function normalizeProduct(id, data) {
@@ -161,7 +202,7 @@ function normalizeProduct(id, data) {
     name: data.name || "منتج بدون اسم",
     price: Number(data.price || 0),
     oldPrice: Number(data.oldPrice || 0),
-    category: data.category || "accessories",
+    category: data.category || "electronics",
     badge: data.badge || "منتج",
     description: data.description || "لا يوجد وصف لهذا المنتج.",
     images: images.length
@@ -172,10 +213,10 @@ function normalizeProduct(id, data) {
 
 function editProduct(product) {
   editingId = product.id;
-  formTitle.textContent = "تعديل المنتج";
+  formTitle.textContent = "تعديل منتج";
 
   nameInput.value = product.name || "";
-  categoryInput.value = product.category || "accessories";
+  categoryInput.value = product.category || "electronics";
   priceInput.value = product.price || "";
   oldPriceInput.value = product.oldPrice || "";
   badgeInput.value = product.badge || "";
@@ -186,6 +227,7 @@ function editProduct(product) {
   existingImages = Array.isArray(product.images) ? [...product.images] : [];
 
   renderPreview();
+  switchTab("add");
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -197,14 +239,14 @@ async function removeProduct(id) {
 
   try {
     await deleteDoc(doc(db, "products", id));
-    showNotice("تم حذف المنتج");
+    showNotice("تم حذف المنتج", "success");
 
     if (editingId === id) {
       resetForm();
     }
   } catch (error) {
     console.error(error);
-    alert("حدث خطأ أثناء حذف المنتج");
+    showNotice("حدث خطأ أثناء حذف المنتج", "error");
   }
 }
 
@@ -213,33 +255,40 @@ function renderProducts(items) {
 
   if (!items.length) {
     productsList.innerHTML = `<div class="empty-box">لا توجد منتجات حالياً</div>`;
+    updateStats();
     return;
   }
 
   items.forEach((product) => {
     const item = document.createElement("div");
-    item.className = "admin-product";
+    item.className = "product-card";
 
     item.innerHTML = `
-      <div class="admin-product-row">
-        <div class="admin-thumb">
+      <div class="product-top">
+        <div class="product-thumb">
           <img src="${escapeHtml(product.images[0])}" alt="${escapeHtml(product.name)}">
         </div>
 
         <div style="flex:1">
-          <h3>${escapeHtml(product.name)}</h3>
-          <p>${escapeHtml(product.description)}</p>
-          <div class="admin-product-price">
+          <div class="product-name">${escapeHtml(product.name)}</div>
+          <div class="product-desc">${escapeHtml(product.description)}</div>
+
+          <div class="product-meta">
+            <span>الفئة: ${escapeHtml(product.category)}</span>
+            <span>عدد الصور: ${product.images.length}</span>
+            <span>الشارة: ${escapeHtml(product.badge || "منتج")}</span>
+          </div>
+
+          <div class="product-price">
             ${product.price} ر.س
             ${product.oldPrice ? `- قبل الخصم ${product.oldPrice} ر.س` : ""}
           </div>
-          <p>الفئة: ${escapeHtml(product.category)} | عدد الصور: ${product.images.length}</p>
-
-          <div class="admin-actions">
-            <button class="admin-btn" type="button">تعديل</button>
-            <button class="admin-btn-danger" type="button">حذف</button>
-          </div>
         </div>
+      </div>
+
+      <div class="product-actions">
+        <button class="btn" type="button">تعديل</button>
+        <button class="btn-danger" type="button">حذف</button>
       </div>
     `;
 
@@ -249,6 +298,8 @@ function renderProducts(items) {
 
     productsList.appendChild(item);
   });
+
+  updateStats();
 }
 
 function listenProducts() {
@@ -258,6 +309,7 @@ function listenProducts() {
     productsRef,
     (snapshot) => {
       const items = snapshot.docs.map((d) => normalizeProduct(d.id, d.data()));
+      allProducts = items;
       renderProducts(items);
     },
     (error) => {
@@ -276,6 +328,7 @@ resetBtn.addEventListener("click", resetForm);
 
 logoutBtn.addEventListener("click", async () => {
   try {
+    localStorage.removeItem("xr_admin_name");
     await signOut(auth);
   } catch (error) {
     console.error(error);
@@ -295,7 +348,7 @@ saveBtn.addEventListener("click", async () => {
   const description = descriptionInput.value.trim() || "لا يوجد وصف لهذا المنتج.";
 
   if (!name || !price) {
-    alert("اكتب اسم المنتج والسعر");
+    showNotice("اكتب اسم المنتج والسعر", "error");
     return;
   }
 
@@ -315,7 +368,7 @@ saveBtn.addEventListener("click", async () => {
     }
 
     if (!images.length) {
-      alert("أضف صورة واحدة على الأقل");
+      showNotice("أضف صورة واحدة على الأقل", "error");
       return;
     }
 
@@ -332,16 +385,17 @@ saveBtn.addEventListener("click", async () => {
 
     if (editingId) {
       await updateDoc(doc(db, "products", editingId), payload);
-      showNotice("تم تعديل المنتج");
+      showNotice("تم تعديل المنتج", "success");
     } else {
       await addDoc(collection(db, "products"), payload);
-      showNotice("تمت إضافة المنتج");
+      showNotice("تمت إضافة المنتج", "success");
     }
 
     resetForm();
+    switchTab("list");
   } catch (error) {
     console.error(error);
-    alert("حدث خطأ أثناء الحفظ أو رفع الصور:\n" + error.message);
+    showNotice("حدث خطأ أثناء الحفظ أو رفع الصور: " + error.message, "error");
   } finally {
     saveBtn.disabled = false;
     saveBtn.textContent = "حفظ المنتج";
@@ -371,6 +425,11 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   adminAllowed = true;
+
+  const storedName = (localStorage.getItem("xr_admin_name") || "المدير").trim();
+  adminNameDisplay.textContent = "أهلاً، " + storedName;
+  avatarChar.textContent = storedName.charAt(0) || "A";
+
   adminEmailInfo.textContent = "مسجل الدخول: " + email;
 
   if (authLoading) authLoading.style.display = "none";
@@ -378,4 +437,5 @@ onAuthStateChanged(auth, async (user) => {
 
   renderPreview();
   listenProducts();
+  updateStats();
 });
