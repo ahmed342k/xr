@@ -3,103 +3,363 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>تسجيل دخول الأدمن - XR</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>XR Store Admin - تسجيل الدخول</title>
+  <style>
+    *{
+      box-sizing:border-box;
+      margin:0;
+      padding:0;
+      -webkit-tap-highlight-color:transparent;
+      font-family:Tahoma, Arial, sans-serif;
+    }
+
+    :root{
+      --bg1:#071120;
+      --bg2:#0c1a2f;
+      --card:rgba(16,24,40,.72);
+      --line:rgba(255,255,255,.12);
+      --text:#f8fbff;
+      --muted:#9fb2c9;
+      --blue:#22a7ff;
+      --blue2:#0d86ff;
+      --input:rgba(255,255,255,.03);
+      --shadow:0 20px 60px rgba(0,0,0,.30);
+    }
+
+    body{
+      min-height:100vh;
+      background:
+        radial-gradient(circle at top right, rgba(34,167,255,.12), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(34,167,255,.08), transparent 26%),
+        linear-gradient(180deg, var(--bg2), var(--bg1));
+      color:var(--text);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      overflow-x:hidden;
+    }
+
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.02) 0%, transparent 35%, rgba(34,167,255,.04) 100%);
+      pointer-events:none;
+    }
+
+    .card{
+      width:min(430px,100%);
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:34px;
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(14px);
+      -webkit-backdrop-filter:blur(14px);
+      padding:34px 22px 26px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .card::after{
+      content:"";
+      position:absolute;
+      inset:auto -80px -120px auto;
+      width:240px;
+      height:240px;
+      background:radial-gradient(circle, rgba(34,167,255,.18), transparent 68%);
+      pointer-events:none;
+    }
+
+    .logo-wrap{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      margin-bottom:28px;
+    }
+
+    .logo{
+      width:120px;
+      height:120px;
+      margin-bottom:14px;
+      display:block;
+    }
+
+    .title-en{
+      font-size:22px;
+      font-weight:900;
+      letter-spacing:.3px;
+      margin-bottom:6px;
+    }
+
+    .title-ar{
+      font-size:18px;
+      font-weight:900;
+      color:var(--blue);
+    }
+
+    .field{
+      margin-bottom:14px;
+    }
+
+    .input-wrap{
+      position:relative;
+    }
+
+    .input-icon{
+      position:absolute;
+      top:50%;
+      transform:translateY(-50%);
+      left:16px;
+      width:24px;
+      height:24px;
+      opacity:.9;
+      pointer-events:none;
+    }
+
+    .input{
+      width:100%;
+      height:58px;
+      border-radius:18px;
+      border:2px solid rgba(88,145,194,.34);
+      background:var(--input);
+      color:var(--text);
+      font-size:18px;
+      padding:0 18px 0 52px;
+      outline:none;
+      transition:.2s ease;
+    }
+
+    .input::placeholder{
+      color:#b8c7d7;
+    }
+
+    .input:focus{
+      border-color:rgba(34,167,255,.9);
+      box-shadow:0 0 0 5px rgba(34,167,255,.12);
+    }
+
+    .help-row{
+      display:flex;
+      justify-content:flex-start;
+      margin:6px 4px 18px;
+    }
+
+    .help-row span{
+      color:var(--muted);
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .submit-btn{
+      width:100%;
+      height:60px;
+      border:none;
+      border-radius:999px;
+      cursor:pointer;
+      background:linear-gradient(90deg, var(--blue2), #2bb7ff);
+      color:#fff;
+      font-size:21px;
+      font-weight:900;
+      box-shadow:0 16px 32px rgba(13,134,255,.24);
+      transition:.2s ease;
+    }
+
+    .submit-btn:hover{
+      filter:brightness(1.03);
+    }
+
+    .submit-btn:disabled{
+      opacity:.75;
+      cursor:not-allowed;
+    }
+
+    .footer-note{
+      text-align:center;
+      margin-top:20px;
+      color:var(--muted);
+      font-size:15px;
+      line-height:1.9;
+      font-weight:700;
+    }
+
+    .notice{
+      margin-top:16px;
+      border-radius:16px;
+      padding:14px 16px;
+      font-size:15px;
+      line-height:1.8;
+      display:none;
+      font-weight:800;
+    }
+
+    .notice.show{
+      display:block;
+    }
+
+    .notice.error{
+      background:rgba(239,68,68,.12);
+      border:1px solid rgba(239,68,68,.28);
+      color:#ffd5d5;
+    }
+
+    .notice.success{
+      background:rgba(34,197,94,.12);
+      border:1px solid rgba(34,197,94,.28);
+      color:#d8ffe7;
+    }
+
+    @media (max-width:480px){
+      .card{
+        border-radius:28px;
+        padding:28px 18px 22px;
+      }
+
+      .logo{
+        width:104px;
+        height:104px;
+      }
+
+      .title-en{
+        font-size:20px;
+      }
+
+      .title-ar{
+        font-size:17px;
+      }
+
+      .input{
+        font-size:17px;
+      }
+
+      .submit-btn{
+        font-size:20px;
+      }
+    }
+  </style>
 </head>
-<body class="login-page">
-  <div class="login-card">
-    <h1>تسجيل دخول الأدمن</h1>
-    <p>الدخول مسموح فقط للإيميلات المحددة داخل لوحة الإدارة.</p>
+<body>
+  <div class="card">
+    <div class="logo-wrap">
+      <svg class="logo" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#25b3ff"/>
+            <stop offset="100%" stop-color="#1174ff"/>
+          </linearGradient>
+        </defs>
+        <path d="M28 111H86L76 133H17L28 111Z" fill="#F3F7FF"/>
+        <path d="M36 67H93L88 84H43L36 67Z" fill="#F3F7FF"/>
+        <path d="M63 45H108L92 98H48L63 45Z" fill="url(#g1)"/>
+        <path d="M25 37H47L64 61H49L25 37Z" fill="#F3F7FF"/>
+        <path d="M106 44H144C158 44 165 55 160 67L147 99C143 109 133 115 122 115H93L106 44Z" fill="#F3F7FF"/>
+        <path d="M90 97H121C127 97 131 93 133 87L140 63C142 56 138 51 131 51H99L90 97Z" fill="#0C1A2F" opacity=".08"/>
+        <circle cx="58" cy="136" r="10" fill="#F3F7FF"/>
+        <circle cx="101" cy="136" r="10" fill="#F3F7FF"/>
+      </svg>
 
-    <div class="field">
-      <label for="email">الإيميل</label>
-      <input type="email" id="email" placeholder="example@gmail.com" />
+      <div class="title-en">XR Store <span style="color:#39b4ff">Admin</span></div>
+      <div class="title-ar">الأدمن - متجر XR</div>
     </div>
 
-    <div class="field">
-      <label for="password">كلمة المرور</label>
-      <input type="password" id="password" placeholder="********" />
-    </div>
+    <form id="loginForm" novalidate>
+      <div class="field">
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="#2daeff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21C20 17.6863 16.4183 15 12 15C7.58172 15 4 17.6863 4 21"/>
+            <circle cx="12" cy="8" r="4"/>
+          </svg>
+          <input id="displayName" class="input" type="text" placeholder="الاسم الذي سيظهر بعد الدخول" />
+        </div>
+      </div>
 
-    <div class="admin-actions">
-      <button class="admin-btn" id="loginBtn">تسجيل الدخول</button>
-      <a href="index.html" class="admin-btn-light">العودة للمتجر</a>
-    </div>
+      <div class="field">
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="#B8C7D7" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="11" width="16" height="10" rx="2"/>
+            <path d="M8 11V8C8 5.79086 9.79086 4 12 4C14.2091 4 16 5.79086 16 8V11"/>
+          </svg>
+          <input id="password" class="input" type="password" placeholder="كلمة المرور" />
+        </div>
+      </div>
 
-    <p id="loginMsg" style="margin-top:14px;color:#ef4444;font-weight:800;"></p>
+      <div class="help-row">
+        <span>نسيت كلمة المرور؟ عدّلها من داخل الملف إذا تريد.</span>
+      </div>
+
+      <button id="loginBtn" class="submit-btn" type="submit">تسجيل الدخول</button>
+
+      <div id="notice" class="notice"></div>
+
+      <div class="footer-note">
+        ليس لديك حساب؟ هذا دخول داخلي للوحة الأدمن فقط
+      </div>
+    </form>
   </div>
 
-  <script type="module">
-    import { auth } from "./firebase.js";
-    import {
-      signInWithEmailAndPassword,
-      onAuthStateChanged,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  <script>
+    const ADMIN_PASSWORD = "xr2026admin";
+    const STORAGE_KEY = "xr_admin_session";
+    const NAME_KEY = "xr_admin_name";
 
-    const ADMIN_EMAILS = [
-      "ohkvchnjvbnb@gmail.com",
-      "raedhammd22@gmail.com"
-    ];
-
-    const emailInput = document.getElementById("email");
+    const loginForm = document.getElementById("loginForm");
+    const displayNameInput = document.getElementById("displayName");
     const passwordInput = document.getElementById("password");
     const loginBtn = document.getElementById("loginBtn");
-    const loginMsg = document.getElementById("loginMsg");
+    const notice = document.getElementById("notice");
 
-    let initialCheckDone = false;
+    function showNotice(message, type = "error") {
+      notice.className = "notice show " + type;
+      notice.textContent = message;
+    }
 
-    onAuthStateChanged(auth, async (user) => {
-      if (initialCheckDone) return;
-      initialCheckDone = true;
+    function hideNotice() {
+      notice.className = "notice";
+      notice.textContent = "";
+    }
 
-      if (!user) return;
+    if (localStorage.getItem(STORAGE_KEY) === "1") {
+      window.location.replace("admin.html");
+    }
 
-      const email = (user.email || "").toLowerCase();
+    loginForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      hideNotice();
 
-      if (ADMIN_EMAILS.includes(email)) {
-        window.location.replace("admin.html");
+      const name = (displayNameInput.value || "").trim();
+      const password = passwordInput.value || "";
+
+      if (!name) {
+        showNotice("اكتب الاسم أولاً.");
+        displayNameInput.focus();
         return;
       }
 
-      try {
-        await signOut(auth);
-      } catch (error) {
-        console.error(error);
-      }
-
-      loginMsg.textContent = "هذا الإيميل غير مسموح له بدخول لوحة الأدمن";
-    });
-
-    loginBtn.addEventListener("click", async () => {
-      const email = emailInput.value.trim().toLowerCase();
-      const password = passwordInput.value.trim();
-
-      loginMsg.textContent = "";
-
-      if (!email || !password) {
-        loginMsg.textContent = "اكتب الإيميل وكلمة المرور";
+      if (!password) {
+        showNotice("اكتب كلمة المرور.");
+        passwordInput.focus();
         return;
       }
 
-      if (!ADMIN_EMAILS.includes(email)) {
-        loginMsg.textContent = "هذا الإيميل غير مسموح له بدخول لوحة الأدمن";
+      if (password !== ADMIN_PASSWORD) {
+        showNotice("كلمة المرور غير صحيحة.");
         return;
       }
 
       loginBtn.disabled = true;
-      loginBtn.textContent = "جاري تسجيل الدخول...";
+      loginBtn.textContent = "جاري الدخول...";
 
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
+      localStorage.setItem(STORAGE_KEY, "1");
+      localStorage.setItem(NAME_KEY, name);
+
+      showNotice("تم تسجيل الدخول بنجاح.", "success");
+
+      setTimeout(() => {
         window.location.replace("admin.html");
-      } catch (error) {
-        console.error(error);
-        loginMsg.textContent = "فشل تسجيل الدخول. تأكد من الإيميل وكلمة المرور ومن إنشاء الحساب داخل Firebase Auth";
-      } finally {
-        loginBtn.disabled = false;
-        loginBtn.textContent = "تسجيل الدخول";
-      }
+      }, 450);
     });
   </script>
 </body>
