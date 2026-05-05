@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>BMW Compare Live</title>
+
+<style>
+body {
+  background:#0b0b0b;
+  color:#fff;
+  text-align:center;
+  font-family:Arial;
+}
+
+select, button {
+  padding:10px;
+  margin:10px;
+  border-radius:6px;
+  border:none;
+}
+
+button {
+  background:#00c896;
+  cursor:pointer;
+}
+
+table {
+  margin:20px auto;
+  border-collapse:collapse;
+  width:90%;
+  max-width:700px;
+}
+
+td, th {
+  border:1px solid #333;
+  padding:10px;
+}
+
+th {
+  background:#00c896;
+  color:#000;
+}
+</style>
+</head>
+
+<body>
+
+<h2>🚗 مقارنة سيارات BMW (من الإنترنت)</h2>
+
+<select id="car1"></select>
+<select id="car2"></select>
+
+<br>
+<button onclick="compare()">قارن</button>
+
+<table id="result"></table>
+
+<script>
+const car1 = document.getElementById("car1");
+const car2 = document.getElementById("car2");
+const result = document.getElementById("result");
+
+// جلب سيارات BMW
+fetch("https://www.carqueryapi.com/api/0.3/?callback=?&cmd=getModels&make=bmw")
+.then(res => res.text())
+.then(data => {
+  const json = JSON.parse(data.replace("?", ""));
+
+  json.Models.forEach(car => {
+    car1.innerHTML += `<option>${car.model_name}</option>`;
+    car2.innerHTML += `<option>${car.model_name}</option>`;
+  });
+});
+
+// جلب تفاصيل سيارة
+async function getCarData(model) {
+  const res = await fetch(`https://www.carqueryapi.com/api/0.3/?callback=?&cmd=getTrims&model=${model}`);
+  const text = await res.text();
+  const json = JSON.parse(text.replace("?", ""));
+  return json.Trims[0];
+}
+
+// مقارنة
+async function compare() {
+  const c1 = await getCarData(car1.value);
+  const c2 = await getCarData(car2.value);
+
+  result.innerHTML = `
+    <tr>
+      <th>الميزة</th>
+      <th>${car1.value}</th>
+      <th>${car2.value}</th>
+    </tr>
+    <tr>
+      <td>السنة</td>
+      <td>${c1.model_year}</td>
+      <td>${c2.model_year}</td>
+    </tr>
+    <tr>
+      <td>المحرك</td>
+      <td>${c1.engine_cc} CC</td>
+      <td>${c2.engine_cc} CC</td>
+    </tr>
+    <tr>
+      <td>الوقود</td>
+      <td>${c1.model_engine_fuel}</td>
+      <td>${c2.model_engine_fuel}</td>
+    </tr>
+    <tr>
+      <td>ناقل الحركة</td>
+      <td>${c1.model_transmission_type}</td>
+      <td>${c2.model_transmission_type}</td>
+    </tr>
+  `;
+}
+</script>
+
+</body>
+</html>
