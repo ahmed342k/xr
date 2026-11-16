@@ -2,218 +2,198 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>شرح حديث: أهل الذكر</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>إعلان تصميم فيديوهات موشن 3D</title>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/mp4-muxer@5.1.3/build/mp4-muxer.min.js"></script>
 <style>
-  body{margin:0;min-height:100vh;color:#fff;font-family:'Tajawal',sans-serif;text-align:center;padding:14px;
-    background:radial-gradient(circle at 20% 10%,#5b3df5 0,transparent 45%),radial-gradient(circle at 85% 90%,#ff4f9a 0,transparent 45%),#0a0a1f}
-  canvas{width:100%;max-width:960px;aspect-ratio:16/9;border-radius:28px;box-shadow:0 20px 60px #0009,0 0 0 1px #ffffff40}
-  .bar{max-width:900px;height:8px;background:#ffffff26;margin:14px auto;border-radius:6px;overflow:hidden;backdrop-filter:blur(10px)}
-  #prog{height:100%;width:0;border-radius:6px;background:linear-gradient(90deg,#8e7cff,#00e5ff,#ffd86b)}
-  button{font:700 19px 'Tajawal',sans-serif;color:#fff;padding:13px 28px;margin:6px;border-radius:999px;cursor:pointer;
-    border:1px solid #ffffff66;background:linear-gradient(180deg,#ffffff40,#ffffff14);backdrop-filter:blur(18px);
-    box-shadow:0 8px 24px #0006,inset 0 1px 0 #ffffff99;transition:transform .2s}
-  button:hover{transform:scale(1.06)}button:active{transform:scale(.95)}
-  button.rec{background:linear-gradient(180deg,#ff6b8a99,#ff2e6355)}
-  #dl{display:none;color:#9bffc4;font-size:19px}#msg{opacity:.85}
+:root{--bg1:#eef2ff;--bg2:#fbe9f6;--glass:rgba(255,255,255,.55);--line:rgba(255,255,255,.85);--tx:#171a2e;--mu:rgba(23,26,46,.62);--ac:#5b6bff;--o1:#a9b8ff;--o2:#ffb6dd;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg1:#0a0f24;--bg2:#1b1245;--glass:rgba(255,255,255,.08);--line:rgba(255,255,255,.2);--tx:#f4f6ff;--mu:rgba(244,246,255,.62);--ac:#7c8cff;--o1:#4a3cff;--o2:#c13fa0}}
+:root[data-theme="dark"]{--bg1:#0a0f24;--bg2:#1b1245;--glass:rgba(255,255,255,.08);--line:rgba(255,255,255,.2);--tx:#f4f6ff;--mu:rgba(244,246,255,.62);--ac:#7c8cff;--o1:#4a3cff;--o2:#c13fa0}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:Tajawal,-apple-system,system-ui,sans-serif;color:var(--tx);background:linear-gradient(160deg,var(--bg1),var(--bg2));min-height:100vh;display:flex;justify-content:center;position:relative;overflow-x:hidden}
+body::before,body::after{content:"";position:fixed;width:50vmax;height:50vmax;border-radius:50%;filter:blur(90px);opacity:.5;z-index:0;pointer-events:none}
+body::before{background:var(--o1);top:-20vmax;right:-15vmax}
+body::after{background:var(--o2);bottom:-22vmax;left:-15vmax}
+.wrap{position:relative;z-index:1;width:100%;max-width:980px;padding:22px 16px 34px}
+h1{margin:0 0 4px;font-size:clamp(1.4rem,4.5vw,2rem);font-weight:800}
+.sub{margin:0 0 18px;color:var(--mu);font-size:.95rem}
+.glass{background:var(--glass);border:1px solid var(--line);-webkit-backdrop-filter:blur(28px) saturate(180%);backdrop-filter:blur(28px) saturate(180%);border-radius:28px;box-shadow:0 20px 60px rgba(20,20,60,.18),inset 0 1px 0 rgba(255,255,255,.4)}
+.stage{padding:10px;position:relative}
+canvas{display:block;width:100%;height:auto;aspect-ratio:16/9;border-radius:20px;background:#0b1020;cursor:pointer}
+.big{position:absolute;inset:10px;display:grid;place-items:center;pointer-events:none;transition:opacity .3s}
+.big span{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;font-size:30px;color:#fff;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
+.ctrl{display:flex;align-items:center;gap:12px;padding:10px 14px;margin-top:14px}
+.btn{border:1px solid var(--line);font:inherit;font-weight:700;color:var(--tx);cursor:pointer;border-radius:999px;background:var(--glass);padding:10px 18px;transition:transform .15s}
+.btn:active{transform:scale(.96)}
+.ic{width:44px;height:44px;padding:0;flex:none}
+input[type=range]{flex:1;accent-color:var(--ac);min-width:0}
+.tm{font-size:.85rem;color:var(--mu);direction:ltr;flex:none}
+.dl{width:100%;margin-top:14px;padding:17px;font-size:1.1rem;font-weight:800;color:#fff;border:0;border-radius:22px;cursor:pointer;font-family:inherit;background:linear-gradient(135deg,var(--ac),#b07cff);box-shadow:0 14px 34px rgba(100,100,255,.35);transition:transform .15s,opacity .2s}
+.dl:active{transform:scale(.98)}.dl:disabled{opacity:.6;cursor:wait}
+.bar{height:6px;border-radius:9px;background:var(--line);margin-top:14px;overflow:hidden;display:none}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ac),#ff7ac8)}
+.st{margin:10px 4px 0;color:var(--mu);font-size:.9rem;line-height:1.7}
 </style>
 </head>
 <body>
-<canvas id="c" width="1280" height="720"></canvas>
-<div class="bar"><div id="prog"></div></div>
-<button id="play">▶ تشغيل</button>
-<button id="rec" class="rec">⏺ إنشاء وتحميل الفيديو (MP4)</button>
-<div><a id="dl" download="sharh-ahl-aldhikr.webm">⬇ اضغط هنا إن لم يبدأ التحميل تلقائياً</a></div>
-<div id="msg"></div>
+<div class="wrap">
+  <h1>إعلان تصميم فيديوهات موشن شبه 3D</h1>
+  <p class="sub">يُرسم الإعلان مباشرةً داخل المتصفح، ويمكنك تحميله بدقة 4K.</p>
+
+  <div class="glass stage">
+    <canvas id="cv"></canvas>
+    <div class="big" id="big"><span>▶</span></div>
+  </div>
+
+  <div class="glass ctrl">
+    <button class="btn ic" id="pp" aria-label="تشغيل / إيقاف">❚❚</button>
+    <input type="range" id="prog" min="0" max="1000" value="0">
+    <span class="tm" id="tm">00:00 / 00:24</span>
+    <button class="btn" id="shuf">🎲 نماذج جديدة</button>
+  </div>
+
+  <button class="dl" id="dl">⬇ تحميل الفيديو 4K (3840×2160)</button>
+  <div class="bar" id="bar"><i id="bi"></i></div>
+  <p class="st" id="st">نصيحة: استخدم Chrome أو Edge على الحاسوب لأفضل نتيجة. أبقِ التبويب مفتوحاً أثناء التصوير (نحو 24 ثانية).</p>
+</div>
 
 <script>
-const c=document.getElementById('c'),ctx=c.getContext('2d'),W=1280,H=720;
-const FONT="'Tajawal','Amiri','Noto Naskh Arabic',sans-serif";
-const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
-const fade=(t,d,i=.6,o=.6)=>clamp(Math.min(t/i,(d-t)/o));
-const lerp=(a,b,p)=>a+(b-a)*p, ease=p=>p*p*(3-2*p);
+const T=24,cv=document.getElementById('cv'),cx=cv.getContext('2d'),$=id=>document.getElementById(id);
+cv.width=1920;cv.height=1080;
+['700','800'].forEach(w=>document.fonts.load(w+' 40px Tajawal','تصميم'));
+const NAMES=['لوغو متحرك','إعلان منتج','إنترو يوتيوب','ريلز وتيك توك','عرض تطبيق','هوية بصرية','فيديو عقاري','إعلان مطعم'];
+let S=1,samples=[],bg=[];
+const col=(h,s,l,a=1)=>`hsla(${((h%360)+360)%360},${s}%,${l}%,${a})`;
+const cl=(v,a=0,b=1)=>Math.min(b,Math.max(a,v));
+const ease=v=>{v=cl(v);return v*v*(3-2*v)};
+function rng(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 
-function glow(x,y,r,col,a=1){const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,col+'cc');g.addColorStop(1,col+'00');ctx.save();ctx.globalAlpha=a;ctx.fillStyle=g;ctx.fillRect(x-r,y-r,2*r,2*r);ctx.restore();}
-function bg(T,pal){ctx.fillStyle='#0a0a1f';ctx.fillRect(0,0,W,H);
-  for(let i=0;i<5;i++)glow(640+Math.sin(T*.3+i*1.7)*520,360+Math.cos(T*.25+i*2.3)*300,430,pal[i%3],.75);}
-function glass(x,y,w,h,r=30,tint='#ffffff',a=1){
-  ctx.save();ctx.globalAlpha=a;ctx.shadowColor='#0007';ctx.shadowBlur=22;ctx.shadowOffsetY=14;
-  let g=ctx.createLinearGradient(x,y,x,y+h);g.addColorStop(0,tint+'55');g.addColorStop(1,tint+'1a');
-  ctx.fillStyle=g;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();ctx.shadowColor='transparent';
-  let s=ctx.createLinearGradient(x,y,x+w*.4,y+h);s.addColorStop(0,'#ffffffdd');s.addColorStop(.5,'#ffffff20');s.addColorStop(1,'#ffffff77');
-  ctx.strokeStyle=s;ctx.lineWidth=2;ctx.stroke();
-  ctx.save();ctx.clip();let sh=ctx.createLinearGradient(x,y,x,y+h*.5);sh.addColorStop(0,'#ffffff40');sh.addColorStop(1,'#ffffff00');ctx.fillStyle=sh;ctx.fillRect(x,y,w,h*.5);ctx.restore();
-  ctx.restore();}
-function txt(s,x,y,size,col='#fff',a=1,w='700'){ctx.save();ctx.globalAlpha=a;ctx.direction='rtl';ctx.textAlign='center';ctx.font=w+' '+size+'px '+FONT;ctx.fillStyle=col;ctx.fillText(s,x,y);ctx.restore();}
-function wrap(s,size,maxW){ctx.font='700 '+size+'px '+FONT;ctx.direction='rtl';const ws=s.split(' '),out=[];let cur='';
-  for(const w of ws){const n=cur?cur+' '+w:w;if(ctx.measureText(n).width>maxW&&cur){out.push(cur);cur=w;}else cur=n;}out.push(cur);return out;}
+/* ---------- 3D-style objects ---------- */
+function sphere(c,x,y,r,h){c.save();c.translate(x,y);
+  c.fillStyle='rgba(0,0,0,.28)';c.beginPath();c.ellipse(0,r*1.3,r*.9,r*.2,0,0,7);c.fill();
+  const g=c.createRadialGradient(-r*.35,-r*.4,r*.1,0,0,r*1.05);
+  g.addColorStop(0,col(h,90,84));g.addColorStop(.45,col(h,80,60));g.addColorStop(1,col(h+30,80,26));
+  c.fillStyle=g;c.beginPath();c.arc(0,0,r,0,7);c.fill();
+  c.fillStyle='rgba(255,255,255,.38)';c.beginPath();c.ellipse(-r*.35,-r*.45,r*.28,r*.15,-.6,0,7);c.fill();c.restore()}
+function cube(c,x,y,s,h,t,p){
+  const ax=t*.8+p,ay=t*1.1+p*2,ca=Math.cos(ax),sa=Math.sin(ax),cb=Math.cos(ay),sb=Math.sin(ay),R=[];
+  for(let i=0;i<8;i++){const a=i&1?1:-1,b=i&2?1:-1,d=i&4?1:-1,y1=b*ca-d*sa,z1=b*sa+d*ca;R.push([a*cb+z1*sb,y1,-a*sb+z1*cb])}
+  const F=[[0,1,3,2],[4,5,7,6],[0,1,5,4],[2,3,7,6],[0,2,6,4],[1,3,7,5]];
+  const fs=F.map(f=>{const P=f.map(i=>R[i]),m=[0,1,2].map(k=>P.reduce((a,q)=>a+q[k],0)/4);return{P,m}}).sort((a,b)=>a.m[2]-b.m[2]);
+  c.save();c.translate(x,y);c.lineJoin='round';
+  c.fillStyle='rgba(0,0,0,.25)';c.beginPath();c.ellipse(0,s*2.2,s*1.2,s*.25,0,0,7);c.fill();
+  fs.forEach(({P,m})=>{const L=Math.max(0,-m[0]*.45-m[1]*.7+m[2]*.55),k=col(h,75,28+46*L);
+    c.fillStyle=k;c.strokeStyle=k;c.lineWidth=s*.22;c.beginPath();
+    P.forEach((q,i)=>{const f=1/(1-q[2]*.12);i?c.lineTo(q[0]*s*f,q[1]*s*f):c.moveTo(q[0]*s*f,q[1]*s*f)});
+    c.closePath();c.fill();c.stroke();c.strokeStyle='rgba(255,255,255,.22)';c.lineWidth=2;c.stroke()});
+  c.restore()}
+function ring(c,x,y,r,h,t,p){c.save();c.translate(x,y);c.rotate(t*.4+p);c.scale(1,Math.max(.3,Math.abs(Math.cos(t*.7+p))));
+  const g=c.createLinearGradient(-r,-r,r,r);g.addColorStop(0,col(h,90,80));g.addColorStop(.5,col(h,80,56));g.addColorStop(1,col(h+40,80,30));
+  c.strokeStyle=g;c.lineWidth=r*.4;c.beginPath();c.arc(0,0,r,0,7);c.stroke();
+  c.strokeStyle='rgba(255,255,255,.4)';c.lineWidth=r*.06;c.beginPath();c.arc(0,0,r*1.12,3.4,5);c.stroke();c.restore()}
+function pill(c,x,y,s,h,t,p){c.save();c.translate(x,y);c.rotate(Math.sin(t*.6+p)*.6+p);
+  const w=s*1.9,q=s*.8,g=c.createLinearGradient(0,-q/2,0,q/2);
+  g.addColorStop(0,col(h,90,76));g.addColorStop(.55,col(h,80,54));g.addColorStop(1,col(h+30,80,30));
+  c.fillStyle=g;c.beginPath();c.roundRect(-w/2,-q/2,w,q,q/2);c.fill();
+  c.fillStyle='rgba(255,255,255,.32)';c.beginPath();c.roundRect(-w/2+q*.3,-q/2+q*.12,w-q*.6,q*.2,q*.1);c.fill();c.restore()}
+function obj(c,o,w,h,t){const y=o.y*h+Math.sin(t*o.sp+o.p)*14,x=o.x*w+Math.cos(t*o.sp*.7+o.p)*8,s=62*o.z;
+  if(o.k=='sphere')sphere(c,x,y,s,o.h);else if(o.k=='cube')cube(c,x,y,s*.8,o.h,t*o.sp,o.p);
+  else if(o.k=='ring')ring(c,x,y,s,o.h,t,o.p);else pill(c,x,y,s,o.h,t,o.p)}
 
-// ---------- characters ----------
-function angel(x,y,s,t,ph){const f=Math.sin(t*6+ph)*.25+.85;glow(x,y,80*s,'#ffffff',.6);
-  ctx.save();ctx.translate(x,y);
-  for(const sg of [-1,1]){ctx.save();ctx.scale(sg*f,1);ctx.rotate(-.45);let g=ctx.createLinearGradient(0,0,60*s,0);g.addColorStop(0,'#ffffffcc');g.addColorStop(1,'#bfe9ff33');
-    ctx.fillStyle=g;ctx.strokeStyle='#ffffffaa';ctx.beginPath();ctx.ellipse(38*s,-8*s,40*s,12*s,0,0,7);ctx.fill();ctx.stroke();ctx.restore();}
-  ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,0,13*s,0,7);ctx.fill();
-  ctx.strokeStyle='#ffe38a';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,-22*s,12*s,4*s,0,0,7);ctx.stroke();ctx.restore();}
-function people(cx,cy,n,t,s=1,a=1){const arr=[];for(let i=0;i<n;i++){const an=i/n*6.283+.4;arr.push([cx+Math.cos(an)*190*s,cy+Math.sin(an)*48*s]);}
-  arr.sort((p,q)=>p[1]-q[1]);ctx.save();ctx.globalAlpha=a;
-  arr.forEach(([x,y],i)=>{glow(x,y-30*s,60*s,'#ffd86b',.35+.25*Math.sin(t*3+i));
-    ctx.fillStyle='#ffffffee';ctx.beginPath();ctx.arc(x,y-38*s,15*s,0,7);ctx.fill();
-    let g=ctx.createLinearGradient(x,y-25*s,x,y+10*s);g.addColorStop(0,'#ffffffcc');g.addColorStop(1,'#ffffff44');ctx.fillStyle=g;
-    ctx.beginPath();ctx.ellipse(x,y-4*s,26*s,24*s,0,Math.PI,0);ctx.fill();});ctx.restore();}
-function sparkles(t,n,x0,x1,y0,y1,col='#ffffff'){ctx.fillStyle=col;for(let i=0;i<n;i++){const x=lerp(x0,x1,(i*.6180)%1),y=y0+((i*97+(-t*40))%(y1-y0)+(y1-y0))%(y1-y0);ctx.globalAlpha=.4+.4*Math.sin(t*3+i);ctx.beginPath();ctx.arc(x,y,2+(i%3),0,7);ctx.fill();}ctx.globalAlpha=1;}
+/* ---------- random samples ---------- */
+function mk(seed,hue,n,hero){const r=rng(seed),K=['sphere','cube','ring','pill'],o=[];
+  for(let i=0;i<n;i++)o.push({k:K[r()*4|0],x:.1+.8*r(),y:.14+.72*r(),z:.55+r()*.7,h:hue+(r()-.5)*100,p:r()*6.28,sp:.5+r()});
+  if(hero)o[0]={...o[0],k:K[r()*3|0],x:.5,y:.5,z:1.9};return o}
+function shuffle(){const p=[...NAMES].sort(()=>Math.random()-.5).slice(0,3),H=[210,285,160,20,330,45];
+  samples=p.map(n=>{const h=H[Math.random()*6|0];return{n,bgh:h,o:mk(Math.random()*1e9|0,h,9,true)}});bg=mk(777,250,10,false)}
+function scene(c,w,h,sm,t){
+  let g=c.createLinearGradient(0,0,w,h);g.addColorStop(0,col(sm.bgh,65,30));g.addColorStop(1,col(sm.bgh+60,70,12));c.fillStyle=g;c.fillRect(0,0,w,h);
+  g=c.createRadialGradient(w/2,h/2,0,w/2,h/2,w/2);g.addColorStop(0,col(sm.bgh,90,60,.35));g.addColorStop(1,col(sm.bgh,90,60,0));c.fillStyle=g;c.fillRect(0,0,w,h);
+  [...sm.o].sort((a,b)=>a.z-b.z).forEach(o=>obj(c,o,w,h,t));
+  const sx=((t*.3)%1.8-.4)*w;g=c.createLinearGradient(sx-150,0,sx+150,h*.3);
+  g.addColorStop(0,'rgba(255,255,255,0)');g.addColorStop(.5,'rgba(255,255,255,.12)');g.addColorStop(1,'rgba(255,255,255,0)');c.fillStyle=g;c.fillRect(0,0,w,h)}
 
-// ---------- motifs ----------
-const M={
- title(t,d,T){const a=fade(t,d);sparkles(T,40,0,W,0,H);
-  for(let i=0;i<6;i++)angel(160+i*190,150+Math.sin(T*2+i)*25+(i%2)*380,.9,T,i);
-  glass(190,200,900,320,50,'#ffffff',a);
-  txt('شرح حديث',640,300,40,'#ffe38a',a);
-  txt('أهل الذكر',640,410,110,'#fff',clamp((t-.4)/.8)*fade(t,d,.1,.5),'800');
-  txt('صحيح البخاري ‏(6408)',640,480,30,'#ffffffcc',clamp((t-1.4)/.8)*fade(t,d,.1,.5),'400');},
- roam(t,d,T){const p=ease(clamp((t-3)/3));sparkles(T,30,0,W,0,H);
-  people(640,430,6,t,1,clamp((t-1)/1));
-  for(let i=0;i<5;i++){const rx=((t*130+i*300)%1500)-110,ry=300+Math.sin(t*2+i)*50+i*10;
-    const an=i/5*6.283+t*.6,tx=640+Math.cos(an)*250,ty=340+Math.sin(an)*60;angel(lerp(rx,tx,p),lerp(ry,ty,p),1,t,i);}},
- rise(t,d,T){const up=t*22;people(640,440-up,6,t,1);
-  for(let i=0;i<8;i++){const an=i/8*6.283+t*.8;angel(640+Math.cos(an)*270,360-up+Math.sin(an)*70,1,t,i);}
-  for(let i=0;i<4;i++){const y=((t*50+i*200)%900)-100;ctx.save();ctx.globalAlpha=.3;ctx.fillStyle='#fff';ctx.beginPath();ctx.ellipse((i*377)%1200+80,y,160,34,0,0,7);ctx.fill();ctx.restore();}
-  sparkles(T,45,0,W,0,H);},
- words(t,d,T){people(640,470,5,t,.8,.9);const w=['سبحان الله','الله أكبر','الحمد لله','تمجيد وتعظيم','سبحان الله','الله أكبر'];
-  w.forEach((s,i)=>{const p=((t*.18+i/6)%1),x=200+(i%3)*330+Math.sin(t+i)*30,y=470-p*290;const a=Math.sin(p*3.14);
-    ctx.font='700 30px '+FONT;const ww=ctx.measureText(s).width+50;glass(x-ww/2,y-26,ww,52,26,'#ffe38a',a);txt(s,x,y+10,28,'#fff',a);});},
- light(t,d,T){ctx.save();ctx.translate(640,0);for(let i=0;i<9;i++){ctx.rotate(.02);}ctx.restore();
-  for(let i=-3;i<=3;i++){ctx.save();ctx.globalAlpha=.16+.08*Math.sin(t*2+i);ctx.fillStyle='#fff6c0';ctx.beginPath();ctx.moveTo(640,-20);ctx.lineTo(640+i*150-70,700);ctx.lineTo(640+i*150+70,700);ctx.fill();ctx.restore();}
-  glow(640,120,200,'#fff0a0',.9);people(640,470,5,t,.8,.9);sparkles(T,35,200,1080,150,500,'#fff6c0');},
- jannah(t,d,T){glow(640,380,330,'#7dffb8',.8);
-  ctx.save();ctx.beginPath();ctx.moveTo(500,500);ctx.lineTo(500,330);ctx.arc(640,330,140,Math.PI,0);ctx.lineTo(780,500);ctx.closePath();
-  let g=ctx.createLinearGradient(0,190,0,500);g.addColorStop(0,'#a8ffd488');g.addColorStop(1,'#00e08a44');ctx.fillStyle=g;ctx.fill();ctx.strokeStyle='#ffffffbb';ctx.lineWidth=3;ctx.stroke();ctx.restore();
-  for(let i=0;i<7;i++){const x=200+i*140,y=500-((t*.3+i*.17)%1)*40;ctx.fillStyle='#3ee89a88';ctx.beginPath();ctx.arc(x,y-10,34+(i%3)*8,0,7);ctx.fill();ctx.fillStyle='#ffffff55';ctx.fillRect(x-5,y+10,10,30);}
-  sparkles(T,50,0,W,0,H,'#d6ffe9');people(640,510,5,t,.55,.9);},
- fire(t,d,T){glow(640,520,420,'#ff5e3a',.7);
-  for(let i=0;i<16;i++){const x=80+i*74,h=110+60*Math.sin(t*5+i*1.3)+(i%3)*30,w=40;
-    let g=ctx.createLinearGradient(0,520-h,0,520);g.addColorStop(0,'#ffe27acc');g.addColorStop(.5,'#ff7a3acc');g.addColorStop(1,'#ff2e6388');
-    ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(x-w,520);ctx.quadraticCurveTo(x-w*.4,520-h*.5,x+Math.sin(t*6+i)*14,520-h);ctx.quadraticCurveTo(x+w*.4,520-h*.5,x+w,520);ctx.fill();}
-  sparkles(T,40,0,W,150,520,'#ffd08a');people(640,420,4,t,.6,.9);},
- mercy(t,d,T){const p=clamp(t/2);glow(640,380,500*p+80,'#ffd86b',.9);
-  ctx.save();ctx.translate(640,380);ctx.rotate(t*.3);for(let i=0;i<12;i++){ctx.rotate(.5236);ctx.fillStyle='#fff3b0';ctx.globalAlpha=.18;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(-30,-520);ctx.lineTo(30,-520);ctx.fill();}ctx.restore();ctx.globalAlpha=1;
-  for(let i=0;i<50;i++){const an=i*2.399,r=clamp(t/3)*(120+(i%7)*60);ctx.fillStyle=['#ffd86b','#ff9ecd','#8ee8ff'][i%3];ctx.globalAlpha=1-clamp(t/6);ctx.beginPath();ctx.arc(640+Math.cos(an)*r,380+Math.sin(an)*r*.7,4+(i%3),0,7);ctx.fill();}ctx.globalAlpha=1;
-  people(640,430,6,t,1,1);for(let i=0;i<4;i++)angel(300+i*230,250+Math.sin(t*2+i)*20,.9,t,i);},
- card(t,d,T){const a=fade(t,d);sparkles(T,30,0,W,0,H);glass(190,90,900,540,50,'#ffffff',a);
-  const rows=[['الراوي','أبو هريرة'],['المحدّث','البخاري'],['المصدر','صحيح البخاري'],['رقم الحديث','6408']];
-  rows.forEach((r,i)=>{const aa=a*clamp((t-.3-i*.25)/.5);txt(r[0]+': '+r[1],640,180+i*70,42,'#fff',aa);});
-  txt('خلاصة حكم المحدّث',640,480,36,'#ffe38a',a*clamp((t-1.5)/.5));
-  wrap('أورده في صحيحه، وقال: رواه شعبة عن الأعمش ولم يرفعه، ورواه سهيل عن أبيه عن أبي هريرة عن النبي ﷺ',30,800).forEach((l,i)=>txt(l,640,528+i*40,30,'#ffffffdd',a*clamp((t-2)/.5),'400'));}
-};
+/* ---------- glass + text helpers ---------- */
+function glass(c,x,y,w,h,r){c.save();c.shadowColor='rgba(0,0,0,.35)';c.shadowBlur=50*S;c.shadowOffsetY=20*S;
+  const g=c.createLinearGradient(x,y,x,y+h);g.addColorStop(0,'rgba(255,255,255,.22)');g.addColorStop(1,'rgba(255,255,255,.07)');
+  c.fillStyle=g;c.beginPath();c.roundRect(x,y,w,h,r);c.fill();c.shadowColor='transparent';
+  c.strokeStyle='rgba(255,255,255,.32)';c.lineWidth=2;c.stroke();
+  c.strokeStyle='rgba(255,255,255,.14)';c.beginPath();c.roundRect(x+4,y+4,w-8,h-8,r-4);c.stroke();c.restore()}
+function txt(c,s,x,y,sz,w,fill,d='rtl'){c.save();c.font=`${w} ${sz}px Tajawal,system-ui,sans-serif`;c.textAlign='center';c.textBaseline='middle';c.direction=d;c.fillStyle=fill;c.fillText(s,x,y);c.restore()}
+function ig(c,x,y,s){c.save();c.translate(x,y);const g=c.createLinearGradient(-s,s,s,-s);
+  [[0,'#feda75'],[.25,'#fa7e1e'],[.5,'#d62976'],[.75,'#962fbf'],[1,'#4f5bd5']].forEach(a=>g.addColorStop(a[0],a[1]));
+  c.fillStyle=g;c.beginPath();c.roundRect(-s,-s,s*2,s*2,s*.55);c.fill();
+  c.strokeStyle='#fff';c.lineWidth=s*.14;c.beginPath();c.roundRect(-s*.58,-s*.58,s*1.16,s*1.16,s*.34);c.stroke();
+  c.beginPath();c.arc(0,0,s*.28,0,7);c.stroke();c.fillStyle='#fff';c.beginPath();c.arc(s*.4,-s*.4,s*.08,0,7);c.fill();c.restore()}
 
-// ---------- upgraded visuals (override earlier versions) ----------
-function bg(T,pal){ctx.fillStyle='#070716';ctx.fillRect(0,0,W,H);
-  for(let i=0;i<5;i++)glow(640+Math.sin(T*.3+i*1.7)*520,360+Math.cos(T*.25+i*2.3)*300,430,pal[i%3],.6);
-  const v=ctx.createRadialGradient(640,360,260,640,360,820);v.addColorStop(0,'#00000000');v.addColorStop(1,'#000000aa');ctx.fillStyle=v;ctx.fillRect(0,0,W,H);}
-function txt(s,x,y,size,col='#fff',a=1,w='700'){ctx.save();ctx.globalAlpha=a;ctx.direction='rtl';ctx.textAlign='center';ctx.font=w+' '+size+'px '+FONT;
-  ctx.shadowColor='#000a';ctx.shadowBlur=10;ctx.shadowOffsetY=2;ctx.fillStyle=col;ctx.fillText(s,x,y);ctx.restore();}
-function angel(x,y,s,t,ph){const u=s*1.5,f=Math.sin(t*5+ph)*.16+.9;
-  glow(x,y+10*u,120*u,'#ffffff',.5);glow(x,y-30*u,50*u,'#ffe38a',.8);
-  for(const sg of [-1,1]){ctx.save();ctx.translate(x,y);ctx.scale(sg,1);
-    for(let k=0;k<5;k++){ctx.save();ctx.rotate((-1.3+k*.32)*f);const g=ctx.createLinearGradient(0,0,95*u,0);g.addColorStop(0,'#ffffffee');g.addColorStop(1,'#9fd8ff44');
-      ctx.fillStyle=g;ctx.strokeStyle='#ffffffcc';ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(50*u,0,50*u,(10-k*.5)*u,0,0,7);ctx.fill();ctx.stroke();ctx.restore();}
-    ctx.restore();}
-  ctx.save();ctx.beginPath();ctx.moveTo(x,y+4*u);ctx.bezierCurveTo(x+34*u,y+10*u,x+28*u,y+60*u,x+40*u,y+82*u);ctx.lineTo(x-40*u,y+82*u);ctx.bezierCurveTo(x-28*u,y+60*u,x-34*u,y+10*u,x,y+4*u);
-  const g=ctx.createLinearGradient(0,y,0,y+82*u);g.addColorStop(0,'#ffffff');g.addColorStop(1,'#a9dcff');ctx.fillStyle=g;ctx.shadowColor='#bfe9ff';ctx.shadowBlur=25;ctx.fill();ctx.restore();
-  ctx.fillStyle='#fff3dc';ctx.beginPath();ctx.arc(x,y-12*u,15*u,0,7);ctx.fill();
-  ctx.strokeStyle='#ffd45e';ctx.lineWidth=3.5*u;ctx.shadowColor='#ffd45e';ctx.shadowBlur=15;ctx.beginPath();ctx.ellipse(x,y-36*u,18*u,5.5*u,0,0,7);ctx.stroke();ctx.shadowBlur=0;}
-function people(cx,cy,n,t,s=1,a=1){const u=s*1.5,cols=[['#2bb7a8','#127a72'],['#6c63ff','#3b34b8'],['#ff7aa8','#c53b73'],['#ffb84d','#c27a12'],['#4fa3ff','#1f64c2'],['#9b6bff','#5a35b3']];
-  ctx.save();ctx.globalAlpha=a;
-  glass(cx-300*s,cy-18*s,600*s,90*s,45*s,'#ffe38a',.9);
-  const arr=[];for(let i=0;i<n;i++){const an=i/n*6.283+.4;arr.push([cx+Math.cos(an)*175*s,cy+10*s+Math.sin(an)*26*s,i]);}
-  arr.sort((p,q)=>p[1]-q[1]);
-  arr.forEach(([x,y,i])=>{const cl=cols[i%6];glow(x,y-60*u,80*u,'#ffd86b',.3+.2*Math.sin(t*3+i));
-    ctx.fillStyle='#0004';ctx.beginPath();ctx.ellipse(x,y+2*u,36*u,8*u,0,0,7);ctx.fill();
-    const g=ctx.createLinearGradient(0,y-62*u,0,y);g.addColorStop(0,cl[0]);g.addColorStop(1,cl[1]);
-    ctx.fillStyle=g;ctx.beginPath();ctx.roundRect(x-34*u,y-62*u,68*u,62*u,[28*u,28*u,12*u,12*u]);ctx.fill();
-    ctx.strokeStyle='#ffffff88';ctx.lineWidth=1.5;ctx.stroke();
-    const lift=Math.sin(t*2+i)*4*u;ctx.fillStyle='#f0c8a0';
-    for(const sg of [-1,1]){ctx.beginPath();ctx.ellipse(x+sg*30*u,y-58*u-lift,8*u,11*u,sg*.3,0,7);ctx.fill();}
-    ctx.fillStyle='#f0c8a0';ctx.beginPath();ctx.arc(x,y-80*u,18*u,0,7);ctx.fill();
-    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(x,y-84*u,20*u,Math.PI*1.03,Math.PI*1.97);ctx.fill();
-    ctx.beginPath();ctx.roundRect(x-20*u,y-96*u,40*u,13*u,6*u);ctx.fill();ctx.strokeStyle='#ffffffaa';ctx.stroke();});
-  ctx.restore();}
+/* ---------- master timeline (24s) ---------- */
+function render(c,t){
+  S=c.canvas.width/1920;c.setTransform(S,0,0,S,0,0);c.globalAlpha=1;
+  let g=c.createLinearGradient(0,0,1920,1080);g.addColorStop(0,'#0a0f24');g.addColorStop(1,'#1b1245');c.fillStyle=g;c.fillRect(0,0,1920,1080);
+  [[.2,.3,260],[.8,.7,200],[.6,.2,320]].forEach((q,i)=>{const x=(q[0]+Math.sin(t*.3+i*2)*.08)*1920,y=(q[1]+Math.cos(t*.25+i)*.08)*1080;
+    const r=c.createRadialGradient(x,y,0,x,y,620);r.addColorStop(0,col(q[2],80,55,.38));r.addColorStop(1,col(q[2],80,55,0));c.fillStyle=r;c.fillRect(0,0,1920,1080)});
+  const vi=ease(t)*(1-ease((t-4.3)/.7)),vo=ease((t-19.2)/.9),mid=t>=4.3&&t<19.2?0:1;
+  c.globalAlpha=.22+.78*Math.max(t<5?vi:0,vo,t<4.3?1:0)*(mid||1);
+  bg.forEach(o=>obj(c,o,1920,1080,t));c.globalAlpha=1;
 
-// ---------- scenes ----------
-const scenes=[
- {d:4,m:'title',pal:['#7c5cff','#00d4ff','#ff5ca8'],L:[]},
- {d:9,m:'roam',pal:['#7c5cff','#00d4ff','#ff5ca8'],L:[[.3,'N','إن لله ملائكة يطوفون في الطرق يلتمسون أهل الذكر'],[4,'N','فإذا وجدوا قومًا يذكرون الله تنادوا: هلمّوا إلى حاجتكم']]},
- {d:6,m:'rise',pal:['#4facfe','#8e7cff','#00f2c3'],L:[[.3,'N','فيحفّونهم بأجنحتهم إلى السماء الدنيا']]},
- {d:8,m:'words',pal:['#f9d423','#ff7eb3','#7c5cff'],L:[[.3,'L','فيسألهم ربهم - وهو أعلم منهم - ما يقول عبادي؟'],[3.5,'A','يسبّحونك ويكبّرونك ويحمدونك ويمجّدونك']]},
- {d:12,m:'light',pal:['#ffd86b','#8e7cff','#00d4ff'],L:[[.3,'L','هل رأوني؟'],[2.2,'A','لا والله ما رأوك'],[4.2,'L','وكيف لو رأوني؟'],[6,'A','لو رأوك كانوا أشد لك عبادة، وأشد تمجيدًا وتحميدًا، وأكثر لك تسبيحًا']]},
- {d:11,m:'jannah',pal:['#00e08a','#00c2ff','#d6ff7a'],L:[[.3,'L','فما يسألوني؟'],[1.8,'A','يسألونك الجنة'],[3.5,'L','وهل رأوها؟'],[5,'A','لا والله يا رب ما رأوها'],[6.7,'L','فكيف لو أنهم رأوها؟'],[8.2,'A','لو رأوها كانوا أشد عليها حرصًا، وأشد لها طلبًا، وأعظم فيها رغبة']]},
- {d:11,m:'fire',pal:['#ff5e3a','#ff2e63','#ffb347'],L:[[.3,'L','فمِمَّ يتعوّذون؟'],[1.8,'A','من النار'],[3.2,'L','وهل رأوها؟'],[4.6,'A','لا والله يا رب ما رأوها'],[6.2,'L','فكيف لو رأوها؟'],[7.6,'A','لو رأوها كانوا أشد منها فرارًا، وأشد لها مخافة']]},
- {d:6,m:'mercy',pal:['#ffd86b','#ff9ecd','#8ee8ff'],L:[[.3,'L','فأُشهدكم أني قد غفرتُ لهم']]},
- {d:9,m:'rise',pal:['#7c5cff','#ffd86b','#00d4ff'],L:[[.3,'A','يقول ملَك من الملائكة: فيهم فلان ليس منهم، إنما جاء لحاجة'],[4.5,'L','هم الجلساء لا يشقى بهم جليسهم']]},
- {d:6,m:'card',pal:['#7c5cff','#00d4ff','#ff5ca8'],L:[]}
-];
-const total=scenes.reduce((s,x)=>s+x.d,0);
+  if(t<5.2){c.save();c.globalAlpha=vi;c.translate(960,540+(1-vi)*40);const k=.94+.06*vi;c.scale(k,k);
+    glass(c,-600,-210,1200,420,64);
+    txt(c,'تصميم فيديوهات موشن غرافيك',0,-95,76,800,'#fff');
+    txt(c,'بأسلوب شبه ثلاثي الأبعاد فخم',0,10,56,700,'#c9d2ff');
+    txt(c,'دقة 4K · تفاصيل احترافية · حركة سلسة',0,110,36,400,'rgba(255,255,255,.7)');c.restore()}
 
-function bubbles(sc,t){
-  for(const who of ['L','A','N']){let cur=null;for(const l of sc.L)if(l[1]===who&&t>=l[0])cur=l;if(!cur)continue;
-    const e=ease(clamp((t-cur[0])/.6)),lines=wrap(cur[2],38,880),h=40+lines.length*54+(who==='N'?0:30);
-    const y=who==='L'?50:(who==='A'?H-50-h:H-60-h);const dy=(1-e)*28*(who==='L'?-1:1);
-    glass(640-470,y+dy,940,h,34,who==='L'?'#ffe38a':'#ffffff',e);
-    let ty=y+dy+(who==='N'?0:30)+48;
-    if(who!=='N')txt(who==='L'?'الربّ سبحانه وتعالى':'الملائكة',640,y+dy+34,22,who==='L'?'#ffe38a':'#9be7ff',e,'700');
-    lines.forEach((l,i)=>txt(l,640,ty+i*54,38,'#fff',e));}}
+  const hd=ease((t-4.8)/.5)*(1-ease((t-18.6)/.5));
+  if(hd>0){c.save();c.globalAlpha=hd;glass(c,-250+960,50,500,66,33);txt(c,'نماذج عشوائية من أعمالنا',960,83,32,700,'#fff');c.restore()}
 
-function frame(T){let t=T,i=0;while(i<scenes.length-1&&t>=scenes[i].d){t-=scenes[i].d;i++;}
-  const sc=scenes[i];ctx.clearRect(0,0,W,H);ctx.globalAlpha=1;
-  bg(T,sc.pal);M[sc.m](t,sc.d,T);bubbles(sc,t);
-  const f=fade(t,sc.d,.5,.5);if(f<1){ctx.fillStyle='rgba(10,10,31,'+(1-f)+')';ctx.fillRect(0,0,W,H);}
-  document.getElementById('prog').style.width=(T/total*100)+'%';}
+  for(let i=0;i<3;i++){const st=5+i*4.7,u=(t-st)/4.7;if(u<0||u>1)continue;
+    const a=Math.min(ease(u/.14),ease((1-u)/.14)),w=1180,h=640;
+    c.save();c.globalAlpha=a;c.translate(960,500+(1-a)*50*(u<.5?1:-1));const k=.9+.1*a;c.scale(k,k);
+    c.save();c.shadowColor='rgba(0,0,0,.45)';c.shadowBlur=70*S;c.shadowOffsetY=30*S;c.fillStyle='#000';c.beginPath();c.roundRect(-w/2,-h/2,w,h,56);c.fill();c.restore();
+    c.save();c.beginPath();c.roundRect(-w/2,-h/2,w,h,56);c.clip();c.translate(-w/2,-h/2);scene(c,w,h,samples[i],t);c.restore();
+    c.strokeStyle='rgba(255,255,255,.35)';c.lineWidth=3;c.beginPath();c.roundRect(-w/2,-h/2,w,h,56);c.stroke();
+    glass(c,-270,h/2+30,540,84,42);txt(c,`نموذج ${i+1} · ${samples[i].n}`,0,h/2+72,38,700,'#fff');c.restore()}
 
-let playing=false,start=0,recording=false,recorder,chunks=[];
-function loop(now){if(!playing)return;const T=(now-start)/1000;
-  if(T>=total){frame(total-.01);playing=false;if(recording)setTimeout(()=>recorder.stop(),300);return;}
-  frame(T);requestAnimationFrame(loop);}
-async function run(){try{await document.fonts.load('700 40px Tajawal');}catch(e){}playing=true;start=performance.now();requestAnimationFrame(loop);}
-document.getElementById('play').onclick=()=>{if(!recording)run();};
-document.getElementById('rec').onclick=async()=>{
-  if(recording)return;
-  const msg=document.getElementById('msg'),dl=document.getElementById('dl');
-  const cfg={codec:'avc1.640028',width:W,height:H,bitrate:8e6,framerate:30};
-  let ok=false;try{ok=!!(window.VideoEncoder&&window.Mp4Muxer&&(await VideoEncoder.isConfigSupported(cfg)).supported);}catch(e){}
-  if(!ok)return recordLegacy();
-  recording=true;playing=false;dl.style.display='none';
-  try{
-    await document.fonts.load('700 40px Tajawal');
-    const muxer=new Mp4Muxer.Muxer({target:new Mp4Muxer.ArrayBufferTarget(),video:{codec:'avc',width:W,height:H},fastStart:'in-memory'});
-    const enc=new VideoEncoder({output:(ch,meta)=>muxer.addVideoChunk(ch,meta),error:e=>{throw e;}});
-    enc.configure(cfg);
-    const FPS=30,N=Math.floor(total*FPS);
-    for(let i=0;i<N;i++){
-      frame(i/FPS);
-      const vf=new VideoFrame(c,{timestamp:Math.round(i*1e6/FPS),duration:Math.round(1e6/FPS)});
-      enc.encode(vf,{keyFrame:i%60===0});vf.close();
-      if(i%5===0){msg.textContent='جارٍ إنشاء الفيديو... '+Math.round(i/N*100)+'%';await new Promise(r=>setTimeout(r));}
-      while(enc.encodeQueueSize>8)await new Promise(r=>setTimeout(r,5));
-    }
-    await enc.flush();muxer.finalize();
-    dl.href=URL.createObjectURL(new Blob([muxer.target.buffer],{type:'video/mp4'}));
-    dl.download='sharh-ahl-aldhikr.mp4';dl.style.display='inline';dl.click();
-    msg.textContent='تم إنشاء الفيديو MP4 ✔';
-  }catch(e){msg.textContent='حدث خطأ: '+e.message;}
-  recording=false;frame(1);
-};
-async function recordLegacy(){
-  if(recording||!window.MediaRecorder){document.getElementById('msg').textContent='استخدم Chrome أو Edge على الحاسوب للتسجيل.';return;}
-  const mt=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'].find(t=>MediaRecorder.isTypeSupported(t));
-  recorder=new MediaRecorder(c.captureStream(30),{mimeType:mt,videoBitsPerSecond:8e6});chunks=[];
-  recorder.ondataavailable=e=>chunks.push(e.data);
-  recorder.onstop=()=>{const a=document.getElementById('dl');a.href=URL.createObjectURL(new Blob(chunks,{type:'video/webm'}));a.style.display='inline';a.click();
-    document.getElementById('msg').textContent='تم التسجيل ✔';recording=false;};
-  document.getElementById('dl').style.display='none';document.getElementById('msg').textContent='جارٍ التسجيل... انتظر حتى ينتهي العرض (نحو 75 ثانية)';
-  recording=true;recorder.start();run();};
-document.fonts.ready.then(()=>frame(1));frame(1);
+  if(t>19){c.save();c.globalAlpha=vo;c.translate(960,540+(1-vo)*40);
+    glass(c,-620,-260,1240,520,64);
+    txt(c,'جاهز نحوّل فكرتك إلى فيديو فخم؟',0,-140,72,800,'#fff');
+    txt(c,'للتواصل وطلب التصميم عبر إنستغرام',0,-50,44,400,'rgba(255,255,255,.72)');
+    c.save();const pk=1+.02*Math.sin(t*3);c.translate(0,70);c.scale(pk,pk);
+    glass(c,-310,-65,620,130,65);ig(c,-215,0,44);txt(c,'@_1w8z',50,4,68,800,'#fff','ltr');c.restore();
+    txt(c,'تصاميم موشن 3D · دقة 4K',0,200,32,400,'rgba(255,255,255,.6)');c.restore()}
+
+  const f=Math.max(1-t/.6,(t-23.3)/.7,0);
+  if(f>0){c.fillStyle=`rgba(8,10,26,${cl(f)})`;c.fillRect(0,0,1920,1080)}}
+
+/* ---------- player ---------- */
+let t=0,playing=true,last=performance.now(),rec=false;
+const fmt=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(Math.floor(s%60)).padStart(2,'0');
+function setPlay(v){playing=v;$('pp').textContent=v?'❚❚':'▶';$('big').style.opacity=v?0:1}
+function tick(n){const d=Math.min(.1,(n-last)/1000);last=n;
+  if(!rec){if(playing){t+=d;if(t>=T)t=0}render(cx,t);$('prog').value=t/T*1000;$('tm').textContent=fmt(t)+' / '+fmt(T)}
+  requestAnimationFrame(tick)}
+$('pp').onclick=cv.onclick=()=>setPlay(!playing);
+$('prog').oninput=e=>{t=e.target.value/1000*T};
+$('shuf').onclick=()=>{shuffle();t=5;setPlay(true)};
+
+/* ---------- 4K export ---------- */
+$('dl').onclick=async()=>{
+  const st=$('st'),bar=$('bar'),bi=$('bi'),btn=$('dl');
+  if(!window.MediaRecorder||!HTMLCanvasElement.prototype.captureStream){st.textContent='المتصفح لا يدعم التصوير. جرّب Chrome أو Edge.';return}
+  const oc=document.createElement('canvas');oc.width=3840;oc.height=2160;const o2=oc.getContext('2d');
+  const mt=['video/mp4;codecs=avc1.640033','video/mp4','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'].find(x=>MediaRecorder.isTypeSupported(x));
+  const r=new MediaRecorder(oc.captureStream(30),{mimeType:mt,videoBitsPerSecond:45e6}),ch=[];
+  r.ondataavailable=e=>e.data.size&&ch.push(e.data);
+  r.onstop=()=>{const b=new Blob(ch,{type:mt.split(';')[0]}),a=document.createElement('a');
+    a.href=URL.createObjectURL(b);a.download='motion-3d-ad-4k.'+(mt.includes('mp4')?'mp4':'webm');document.body.appendChild(a);a.click();a.remove();
+    st.textContent='تم تجهيز الفيديو وتحميله ✓ ('+(b.size/1048576).toFixed(0)+' MB)';btn.disabled=false;bar.style.display='none';rec=false};
+  rec=true;btn.disabled=true;bar.style.display='block';st.textContent='جارٍ تصوير الفيديو بدقة 4K… أبقِ هذه الصفحة ظاهرة.';
+  const t0=performance.now();r.start(1000);
+  (function loop(){const tt=(performance.now()-t0)/1000;
+    if(tt>=T){render(o2,T-.01);setTimeout(()=>r.stop(),400);return}
+    render(o2,tt);bi.style.width=(tt/T*100)+'%';requestAnimationFrame(loop)})()};
+
+shuffle();requestAnimationFrame(tick);
 </script>
 </body>
 </html>
