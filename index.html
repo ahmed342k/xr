@@ -3,17 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>شرح حديث: كيف يأتي الوحي؟</title>
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<title>شرح حديث: أهل الذكر</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
-  body{margin:0;background:#0b1220;color:#fff;font-family:'Amiri','Noto Naskh Arabic',serif;text-align:center;padding:12px}
-  canvas{width:100%;max-width:960px;aspect-ratio:16/9;border-radius:14px;background:#000;box-shadow:0 8px 30px #0008}
-  .bar{max-width:960px;height:6px;background:#ffffff22;margin:10px auto;border-radius:3px;overflow:hidden}
-  #prog{height:100%;width:0;background:#e8c36a}
-  button{font:700 20px 'Amiri',serif;padding:10px 22px;margin:6px;border:0;border-radius:10px;cursor:pointer;background:#e8c36a;color:#222}
-  button.rec{background:#d9534f;color:#fff}
-  #dl{display:none;color:#8fe3a1;font-size:20px}
-  #msg{opacity:.8;font-size:16px}
+  body{margin:0;min-height:100vh;color:#fff;font-family:'Tajawal',sans-serif;text-align:center;padding:14px;
+    background:radial-gradient(circle at 20% 10%,#5b3df5 0,transparent 45%),radial-gradient(circle at 85% 90%,#ff4f9a 0,transparent 45%),#0a0a1f}
+  canvas{width:100%;max-width:960px;aspect-ratio:16/9;border-radius:28px;box-shadow:0 20px 60px #0009,0 0 0 1px #ffffff40}
+  .bar{max-width:900px;height:8px;background:#ffffff26;margin:14px auto;border-radius:6px;overflow:hidden;backdrop-filter:blur(10px)}
+  #prog{height:100%;width:0;border-radius:6px;background:linear-gradient(90deg,#8e7cff,#00e5ff,#ffd86b)}
+  button{font:700 19px 'Tajawal',sans-serif;color:#fff;padding:13px 28px;margin:6px;border-radius:999px;cursor:pointer;
+    border:1px solid #ffffff66;background:linear-gradient(180deg,#ffffff40,#ffffff14);backdrop-filter:blur(18px);
+    box-shadow:0 8px 24px #0006,inset 0 1px 0 #ffffff99;transition:transform .2s}
+  button:hover{transform:scale(1.06)}button:active{transform:scale(.95)}
+  button.rec{background:linear-gradient(180deg,#ff6b8a99,#ff2e6355)}
+  #dl{display:none;color:#9bffc4;font-size:19px}#msg{opacity:.85}
 </style>
 </head>
 <body>
@@ -21,119 +24,135 @@
 <div class="bar"><div id="prog"></div></div>
 <button id="play">▶ تشغيل</button>
 <button id="rec" class="rec">⏺ تسجيل وتحميل الفيديو</button>
-<div><a id="dl" download="sharh-hadith-alwahy.webm">⬇ اضغط هنا إن لم يبدأ التحميل تلقائياً</a></div>
+<div><a id="dl" download="sharh-ahl-aldhikr.webm">⬇ اضغط هنا إن لم يبدأ التحميل تلقائياً</a></div>
 <div id="msg"></div>
 
 <script>
 const c=document.getElementById('c'),ctx=c.getContext('2d'),W=1280,H=720;
-const FONT="'Amiri','Noto Naskh Arabic','Traditional Arabic',serif";
-const GOLD='#e8c36a';
+const FONT="'Tajawal','Amiri','Noto Naskh Arabic',sans-serif";
 const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
 const fade=(t,d,i=.6,o=.6)=>clamp(Math.min(t/i,(d-t)/o));
+const lerp=(a,b,p)=>a+(b-a)*p, ease=p=>p*p*(3-2*p);
 
-function bg(c1,c2){const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,c1);g.addColorStop(1,c2);ctx.fillStyle=g;ctx.fillRect(0,0,W,H);}
-function ground(y,col){ctx.fillStyle=col;ctx.fillRect(0,y,W,H-y);}
-function txt(s,x,y,size,col='#fff',alpha=1,bold=true){
-  ctx.save();ctx.globalAlpha=alpha;ctx.direction='rtl';ctx.textAlign='center';
-  ctx.font=(bold?'700 ':'')+size+'px '+FONT;ctx.fillStyle=col;ctx.fillText(s,x,y);ctx.restore();}
-function cap(list,t,d){ // list of [start,text]
-  let cur=null;for(const l of list){if(t>=l[0])cur=l;}
-  if(!cur)return;
-  const a=clamp((t-cur[0])/.5)*clamp((d-t)/.4);
-  ctx.save();ctx.globalAlpha=a*.7;ctx.fillStyle='#000';ctx.beginPath();ctx.roundRect(90,585,1100,90,22);ctx.fill();ctx.restore();
-  txt(cur[1],640,645,40,'#fff',a);
-}
-function glow(x,y,r,col,a=1){const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,col);g.addColorStop(1,'transparent');ctx.save();ctx.globalAlpha=a;ctx.fillStyle=g;ctx.fillRect(x-r,y-r,2*r,2*r);ctx.restore();}
-function person(x,y,s,col,type){ // faceless figure
-  ctx.save();
-  ctx.fillStyle=col;ctx.beginPath();ctx.roundRect(x-42*s,y-175*s,84*s,175*s,30*s);ctx.fill();
-  if(type==='f'){ctx.fillStyle=col;ctx.beginPath();ctx.arc(x,y-205*s,38*s,0,7);ctx.fill();ctx.beginPath();ctx.roundRect(x-48*s,y-190*s,96*s,150*s,40*s);ctx.fill();
-    ctx.fillStyle='#f2c9a0';ctx.beginPath();ctx.ellipse(x,y-205*s,22*s,26*s,0,0,7);ctx.fill();}
-  else{ctx.fillStyle='#f2c9a0';ctx.beginPath();ctx.arc(x,y-205*s,30*s,0,7);ctx.fill();
-    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(x,y-212*s,33*s,Math.PI*1.02,Math.PI*1.98);ctx.fill();
-    ctx.beginPath();ctx.roundRect(x-34*s,y-222*s,68*s,14*s,6*s);ctx.fill();}
+function glow(x,y,r,col,a=1){const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,col+'cc');g.addColorStop(1,col+'00');ctx.save();ctx.globalAlpha=a;ctx.fillStyle=g;ctx.fillRect(x-r,y-r,2*r,2*r);ctx.restore();}
+function bg(T,pal){ctx.fillStyle='#0a0a1f';ctx.fillRect(0,0,W,H);
+  for(let i=0;i<5;i++)glow(640+Math.sin(T*.3+i*1.7)*520,360+Math.cos(T*.25+i*2.3)*300,430,pal[i%3],.75);}
+function glass(x,y,w,h,r=30,tint='#ffffff',a=1){
+  ctx.save();ctx.globalAlpha=a;ctx.shadowColor='#0007';ctx.shadowBlur=40;ctx.shadowOffsetY=14;
+  let g=ctx.createLinearGradient(x,y,x,y+h);g.addColorStop(0,tint+'55');g.addColorStop(1,tint+'1a');
+  ctx.fillStyle=g;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();ctx.shadowColor='transparent';
+  let s=ctx.createLinearGradient(x,y,x+w*.4,y+h);s.addColorStop(0,'#ffffffdd');s.addColorStop(.5,'#ffffff20');s.addColorStop(1,'#ffffff77');
+  ctx.strokeStyle=s;ctx.lineWidth=2;ctx.stroke();
+  ctx.save();ctx.clip();let sh=ctx.createLinearGradient(x,y,x,y+h*.5);sh.addColorStop(0,'#ffffff40');sh.addColorStop(1,'#ffffff00');ctx.fillStyle=sh;ctx.fillRect(x,y,w,h*.5);ctx.restore();
   ctx.restore();}
-function label(s,x,y,a=1){txt(s,x,y,28,GOLD,a);}
-function snow(t){ctx.fillStyle='#fff';for(let i=0;i<90;i++){const x=(i*137)%W+Math.sin(t+i)*15,y=(i*53+t*60*(.5+(i%3)*.3))%H;ctx.globalAlpha=.8;ctx.beginPath();ctx.arc(x,y,2+(i%3),0,7);ctx.fill();}ctx.globalAlpha=1;}
-function bell(x,y,ang){ctx.save();ctx.translate(x,y);ctx.rotate(ang);ctx.fillStyle=GOLD;ctx.beginPath();ctx.moveTo(-50,70);ctx.quadraticCurveTo(-50,-10,0,-25);ctx.quadraticCurveTo(50,-10,50,70);ctx.closePath();ctx.fill();
-  ctx.fillRect(-60,66,120,12);ctx.beginPath();ctx.arc(0,86,12,0,7);ctx.fill();ctx.fillRect(-6,-45,12,25);ctx.restore();}
+function txt(s,x,y,size,col='#fff',a=1,w='700'){ctx.save();ctx.globalAlpha=a;ctx.direction='rtl';ctx.textAlign='center';ctx.font=w+' '+size+'px '+FONT;ctx.fillStyle=col;ctx.fillText(s,x,y);ctx.restore();}
+function wrap(s,size,maxW){ctx.font='700 '+size+'px '+FONT;ctx.direction='rtl';const ws=s.split(' '),out=[];let cur='';
+  for(const w of ws){const n=cur?cur+' '+w:w;if(ctx.measureText(n).width>maxW&&cur){out.push(cur);cur=w;}else cur=n;}out.push(cur);return out;}
 
+// ---------- characters ----------
+function angel(x,y,s,t,ph){const f=Math.sin(t*6+ph)*.25+.85;glow(x,y,80*s,'#ffffff',.6);
+  ctx.save();ctx.translate(x,y);
+  for(const sg of [-1,1]){ctx.save();ctx.scale(sg*f,1);ctx.rotate(-.45);let g=ctx.createLinearGradient(0,0,60*s,0);g.addColorStop(0,'#ffffffcc');g.addColorStop(1,'#bfe9ff33');
+    ctx.fillStyle=g;ctx.strokeStyle='#ffffffaa';ctx.beginPath();ctx.ellipse(38*s,-8*s,40*s,12*s,0,0,7);ctx.fill();ctx.stroke();ctx.restore();}
+  ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,0,13*s,0,7);ctx.fill();
+  ctx.strokeStyle='#ffe38a';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,-22*s,12*s,4*s,0,0,7);ctx.stroke();ctx.restore();}
+function people(cx,cy,n,t,s=1,a=1){const arr=[];for(let i=0;i<n;i++){const an=i/n*6.283+.4;arr.push([cx+Math.cos(an)*190*s,cy+Math.sin(an)*48*s]);}
+  arr.sort((p,q)=>p[1]-q[1]);ctx.save();ctx.globalAlpha=a;
+  arr.forEach(([x,y],i)=>{glow(x,y-30*s,60*s,'#ffd86b',.35+.25*Math.sin(t*3+i));
+    ctx.fillStyle='#ffffffee';ctx.beginPath();ctx.arc(x,y-38*s,15*s,0,7);ctx.fill();
+    let g=ctx.createLinearGradient(x,y-25*s,x,y+10*s);g.addColorStop(0,'#ffffffcc');g.addColorStop(1,'#ffffff44');ctx.fillStyle=g;
+    ctx.beginPath();ctx.ellipse(x,y-4*s,26*s,24*s,0,Math.PI,0);ctx.fill();});ctx.restore();}
+function sparkles(t,n,x0,x1,y0,y1,col='#ffffff'){ctx.fillStyle=col;for(let i=0;i<n;i++){const x=lerp(x0,x1,(i*.6180)%1),y=y0+((i*97+(-t*40))%(y1-y0)+(y1-y0))%(y1-y0);ctx.globalAlpha=.4+.4*Math.sin(t*3+i);ctx.beginPath();ctx.arc(x,y,2+(i%3),0,7);ctx.fill();}ctx.globalAlpha=1;}
+
+// ---------- motifs ----------
+const M={
+ title(t,d,T){const a=fade(t,d);sparkles(T,40,0,W,0,H);
+  for(let i=0;i<6;i++)angel(160+i*190,150+Math.sin(T*2+i)*25+(i%2)*380,.9,T,i);
+  glass(190,200,900,320,50,'#ffffff',a);
+  txt('شرح حديث',640,300,40,'#ffe38a',a);
+  txt('أهل الذكر',640,410,110,'#fff',clamp((t-.4)/.8)*fade(t,d,.1,.5),'800');
+  txt('صحيح البخاري ‏(6408)',640,480,30,'#ffffffcc',clamp((t-1.4)/.8)*fade(t,d,.1,.5),'400');},
+ roam(t,d,T){const p=ease(clamp((t-3)/3));sparkles(T,30,0,W,0,H);
+  people(640,430,6,t,1,clamp((t-1)/1));
+  for(let i=0;i<5;i++){const rx=((t*130+i*300)%1500)-110,ry=300+Math.sin(t*2+i)*50+i*10;
+    const an=i/5*6.283+t*.6,tx=640+Math.cos(an)*250,ty=340+Math.sin(an)*60;angel(lerp(rx,tx,p),lerp(ry,ty,p),1,t,i);}},
+ rise(t,d,T){const up=t*22;people(640,440-up,6,t,1);
+  for(let i=0;i<8;i++){const an=i/8*6.283+t*.8;angel(640+Math.cos(an)*270,360-up+Math.sin(an)*70,1,t,i);}
+  for(let i=0;i<4;i++){const y=((t*50+i*200)%900)-100;ctx.save();ctx.globalAlpha=.3;ctx.fillStyle='#fff';ctx.beginPath();ctx.ellipse((i*377)%1200+80,y,160,34,0,0,7);ctx.fill();ctx.restore();}
+  sparkles(T,45,0,W,0,H);},
+ words(t,d,T){people(640,470,5,t,.8,.9);const w=['سبحان الله','الله أكبر','الحمد لله','تمجيد وتعظيم','سبحان الله','الله أكبر'];
+  w.forEach((s,i)=>{const p=((t*.18+i/6)%1),x=200+(i%3)*330+Math.sin(t+i)*30,y=470-p*290;const a=Math.sin(p*3.14);
+    ctx.font='700 30px '+FONT;const ww=ctx.measureText(s).width+50;glass(x-ww/2,y-26,ww,52,26,'#ffe38a',a);txt(s,x,y+10,28,'#fff',a);});},
+ light(t,d,T){ctx.save();ctx.translate(640,0);for(let i=0;i<9;i++){ctx.rotate(.02);}ctx.restore();
+  for(let i=-3;i<=3;i++){ctx.save();ctx.globalAlpha=.16+.08*Math.sin(t*2+i);ctx.fillStyle='#fff6c0';ctx.beginPath();ctx.moveTo(640,-20);ctx.lineTo(640+i*150-70,700);ctx.lineTo(640+i*150+70,700);ctx.fill();ctx.restore();}
+  glow(640,120,200,'#fff0a0',.9);people(640,470,5,t,.8,.9);sparkles(T,35,200,1080,150,500,'#fff6c0');},
+ jannah(t,d,T){glow(640,380,330,'#7dffb8',.8);
+  ctx.save();ctx.beginPath();ctx.moveTo(500,500);ctx.lineTo(500,330);ctx.arc(640,330,140,Math.PI,0);ctx.lineTo(780,500);ctx.closePath();
+  let g=ctx.createLinearGradient(0,190,0,500);g.addColorStop(0,'#a8ffd488');g.addColorStop(1,'#00e08a44');ctx.fillStyle=g;ctx.fill();ctx.strokeStyle='#ffffffbb';ctx.lineWidth=3;ctx.stroke();ctx.restore();
+  for(let i=0;i<7;i++){const x=200+i*140,y=500-((t*.3+i*.17)%1)*40;ctx.fillStyle='#3ee89a88';ctx.beginPath();ctx.arc(x,y-10,34+(i%3)*8,0,7);ctx.fill();ctx.fillStyle='#ffffff55';ctx.fillRect(x-5,y+10,10,30);}
+  sparkles(T,50,0,W,0,H,'#d6ffe9');people(640,510,5,t,.55,.9);},
+ fire(t,d,T){glow(640,520,420,'#ff5e3a',.7);
+  for(let i=0;i<16;i++){const x=80+i*74,h=110+60*Math.sin(t*5+i*1.3)+(i%3)*30,w=40;
+    let g=ctx.createLinearGradient(0,520-h,0,520);g.addColorStop(0,'#ffe27acc');g.addColorStop(.5,'#ff7a3acc');g.addColorStop(1,'#ff2e6388');
+    ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(x-w,520);ctx.quadraticCurveTo(x-w*.4,520-h*.5,x+Math.sin(t*6+i)*14,520-h);ctx.quadraticCurveTo(x+w*.4,520-h*.5,x+w,520);ctx.fill();}
+  sparkles(T,40,0,W,150,520,'#ffd08a');people(640,420,4,t,.6,.9);},
+ mercy(t,d,T){const p=clamp(t/2);glow(640,380,500*p+80,'#ffd86b',.9);
+  ctx.save();ctx.translate(640,380);ctx.rotate(t*.3);for(let i=0;i<12;i++){ctx.rotate(.5236);ctx.fillStyle='#fff3b0';ctx.globalAlpha=.18;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(-30,-520);ctx.lineTo(30,-520);ctx.fill();}ctx.restore();ctx.globalAlpha=1;
+  for(let i=0;i<50;i++){const an=i*2.399,r=clamp(t/3)*(120+(i%7)*60);ctx.fillStyle=['#ffd86b','#ff9ecd','#8ee8ff'][i%3];ctx.globalAlpha=1-clamp(t/6);ctx.beginPath();ctx.arc(640+Math.cos(an)*r,380+Math.sin(an)*r*.7,4+(i%3),0,7);ctx.fill();}ctx.globalAlpha=1;
+  people(640,430,6,t,1,1);for(let i=0;i<4;i++)angel(300+i*230,250+Math.sin(t*2+i)*20,.9,t,i);},
+ card(t,d,T){const a=fade(t,d);sparkles(T,30,0,W,0,H);glass(190,90,900,540,50,'#ffffff',a);
+  const rows=[['الراوي','أبو هريرة'],['المحدّث','البخاري'],['المصدر','صحيح البخاري'],['رقم الحديث','6408']];
+  rows.forEach((r,i)=>{const aa=a*clamp((t-.3-i*.25)/.5);txt(r[0]+': '+r[1],640,180+i*70,42,'#fff',aa);});
+  txt('خلاصة حكم المحدّث',640,480,36,'#ffe38a',a*clamp((t-1.5)/.5));
+  wrap('أورده في صحيحه، وقال: رواه شعبة عن الأعمش ولم يرفعه، ورواه سهيل عن أبيه عن أبي هريرة عن النبي ﷺ',30,800).forEach((l,i)=>txt(l,640,528+i*40,30,'#ffffffdd',a*clamp((t-2)/.5),'400'));}
+};
+
+// ---------- scenes ----------
 const scenes=[
- {d:4,draw(t,d){bg('#12263f','#0b1220');glow(640,300,420,'#e8c36a55',fade(t,d));
-  txt('شرح حديث',640,230,44,GOLD,fade(t,d));
-  txt('كيف يأتي الوحي؟',640,340,90,'#fff',clamp((t-.5)/.8)*clamp((d-t)/.5));
-  txt('صحيح البخاري ‏(2)',640,440,34,'#cfd8e6',clamp((t-1.5)/.8)*clamp((d-t)/.5));}},
- {d:8,draw(t,d){bg('#1b3a4b','#264653');ground(540,'#c9a86a');
-  const a=fade(t,d);ctx.globalAlpha=a;
-  person(380,540,1,'#6b8f71','m');person(900,540,1,'#3d5a80','m');glow(900,335,110,'#e8c36a44');
-  label('الحارث بن هشام رضي الله عنه',380,585);label('النبي ﷺ',900,585);ctx.globalAlpha=1;
-  const b=clamp((t-1.5)/.6)*clamp((d-t)/.5);
-  ctx.save();ctx.globalAlpha=b;ctx.fillStyle='#fff';ctx.beginPath();ctx.roundRect(150,110,520,110,28);ctx.fill();
-  ctx.beginPath();ctx.moveTo(360,218);ctx.lineTo(380,290);ctx.lineTo(420,218);ctx.fill();ctx.restore();
-  txt('يا رسول الله، كيف يأتيك الوحي؟',410,180,40,'#1b3a4b',b);
-  const e=clamp((t-4.5)/.6)*clamp((d-t)/.5);
-  ctx.save();ctx.globalAlpha=e;ctx.fillStyle='#fff';ctx.beginPath();ctx.roundRect(680,110,470,110,28);ctx.fill();ctx.beginPath();ctx.moveTo(860,218);ctx.lineTo(900,285);ctx.lineTo(920,218);ctx.fill();ctx.restore();
-  txt('للوحي صورتان، سأخبرك بهما',915,180,38,'#264653',e);
-  }},
- {d:9,draw(t,d){bg('#2b2d42','#1a1b2e');ground(560,'#3a3a52');
-  const heavy=t<5.5,sh=heavy?Math.sin(t*45)*4*clamp((t-.5)/.5):0;
-  ctx.save();ctx.translate(sh,0);ctx.globalAlpha=fade(t,d);person(640,560,1,'#3d5a80','m');
-  glow(640,355,heavy?170:90,'#e8c36a66',heavy?.9:.4);ctx.restore();
-  const sw=heavy?Math.sin(t*14)*.3:0;
-  ctx.globalAlpha=fade(t,d);bell(640,175,sw);ctx.globalAlpha=1;
-  if(heavy)for(let k=0;k<4;k++){const r=((t*130+k*70)%280)+40;ctx.strokeStyle=GOLD;ctx.globalAlpha=(1-(r-40)/280)*.7;ctx.lineWidth=4;ctx.beginPath();ctx.arc(640,230,r,0,7);ctx.stroke();}
-  ctx.globalAlpha=1;
-  if(t>3.5&&t<5.5)txt('وهو أشدّه عليّ',640,70,52,'#ff9b85',clamp((t-3.5)/.4));
-  if(t<3.5)txt('الصورة الأولى',640,70,46,GOLD,fade(t,d));
-  if(t>=5.5)txt('ثم ينقطع الصوت وقد حفظ ما قيل',640,70,46,'#8fe3a1',clamp((t-5.5)/.6)*clamp((d-t)/.5));
-  cap([[.3,'أحياناً يأتيني مثل صلصلة الجرس'],[3.5,'وهو أشدّه عليّ'],[5.5,'فيُفصَم عنّي وقد وعيتُ عنه ما قال']],t,d);}},
- {d:9,draw(t,d){bg('#264653','#14303a');ground(540,'#bfa36a');
-  ctx.globalAlpha=fade(t,d);person(300,540,1,'#f4f1de','m');glow(300,335,130,'#ffffff77');
-  person(900,540,1,'#3d5a80','m');glow(900,335,100,'#e8c36a44');ctx.globalAlpha=1;
-  label('الملَك (في صورة رجل)',300,585,fade(t,d));label('النبي ﷺ',900,585,fade(t,d));
-  if(t>3.5){for(let i=0;i<9;i++){const p=((t*.5+i/9)%1),x=380+p*440,y=370+Math.sin(p*12+i)*18;ctx.fillStyle=GOLD;ctx.globalAlpha=(1-Math.abs(p-.5)*1.6)*.9;ctx.beginPath();ctx.arc(x,y,7,0,7);ctx.fill();}ctx.globalAlpha=1;}
-  txt('الصورة الثانية',640,70,46,GOLD,fade(t,d));
-  cap([[.3,'وأحياناً يتمثّل لي الملَك رجلاً'],[3.5,'فيكلّمني'],[5.5,'فأعي ما يقول']],t,d);}},
- {d:10,draw(t,d){bg('#16324f','#0d1b2a');snow(t);ground(560,'#e3ecf4');
-  ctx.globalAlpha=fade(t,d);person(300,560,.95,'#7b4b94','f');person(800,560,1,'#3d5a80','m');
-  glow(800,355,t<6?160:80,'#e8c36a55',.8);ctx.globalAlpha=1;
-  label('عائشة رضي الله عنها',300,595,fade(t,d));label('النبي ﷺ',800,595,fade(t,d));
-  if(t>3.5){for(let i=0;i<5;i++){const p=((t*.6+i/5)%1);ctx.fillStyle='#bfe9ff';ctx.globalAlpha=(1-p)*clamp((t-3.5)/1)*clamp((d-t)/.5);
-    ctx.beginPath();ctx.ellipse(770+i*15,330+p*70,5,8,0,0,7);ctx.fill();}ctx.globalAlpha=1;}
-  txt('يوم شديد البرد ❄',640,70,46,'#bfe9ff',fade(t,d));
-  cap([[.3,'قالت عائشة رضي الله عنها:'],[1.8,'ولقد رأيته ينزل عليه الوحي في اليوم الشديد البرد'],[5.5,'فيفصم عنه وإن جبينه ليتفصّد عرقاً'],[8,'وهذا يدل على شدة ما يتحمّله ﷺ']],t,d);}},
- {d:6,draw(t,d){bg('#12263f','#0b1220');glow(640,360,400,'#e8c36a33');const a=fade(t,d);
-  ctx.save();ctx.globalAlpha=a*.15;ctx.fillStyle='#fff';ctx.beginPath();ctx.roundRect(240,120,800,480,30);ctx.fill();ctx.restore();
-  txt('الراوي: عائشة أم المؤمنين',640,230,44,'#fff',a);
-  txt('المحدّث: البخاري',640,310,44,'#fff',a);
-  txt('المصدر: صحيح البخاري',640,390,44,'#fff',a);
-  txt('رقم الحديث: 2',640,470,44,'#fff',a);
-  txt('خلاصة حكم المحدّث: [صحيح]',640,550,46,GOLD,a);}}
+ {d:4,m:'title',pal:['#7c5cff','#00d4ff','#ff5ca8'],L:[]},
+ {d:9,m:'roam',pal:['#7c5cff','#00d4ff','#ff5ca8'],L:[[.3,'N','إن لله ملائكة يطوفون في الطرق يلتمسون أهل الذكر'],[4,'N','فإذا وجدوا قومًا يذكرون الله تنادوا: هلمّوا إلى حاجتكم']]},
+ {d:6,m:'rise',pal:['#4facfe','#8e7cff','#00f2c3'],L:[[.3,'N','فيحفّونهم بأجنحتهم إلى السماء الدنيا']]},
+ {d:8,m:'words',pal:['#f9d423','#ff7eb3','#7c5cff'],L:[[.3,'L','فيسألهم ربهم - وهو أعلم منهم - ما يقول عبادي؟'],[3.5,'A','يسبّحونك ويكبّرونك ويحمدونك ويمجّدونك']]},
+ {d:12,m:'light',pal:['#ffd86b','#8e7cff','#00d4ff'],L:[[.3,'L','هل رأوني؟'],[2.2,'A','لا والله ما رأوك'],[4.2,'L','وكيف لو رأوني؟'],[6,'A','لو رأوك كانوا أشد لك عبادة، وأشد تمجيدًا وتحميدًا، وأكثر لك تسبيحًا']]},
+ {d:11,m:'jannah',pal:['#00e08a','#00c2ff','#d6ff7a'],L:[[.3,'L','فما يسألوني؟'],[1.8,'A','يسألونك الجنة'],[3.5,'L','وهل رأوها؟'],[5,'A','لا والله يا رب ما رأوها'],[6.7,'L','فكيف لو أنهم رأوها؟'],[8.2,'A','لو رأوها كانوا أشد عليها حرصًا، وأشد لها طلبًا، وأعظم فيها رغبة']]},
+ {d:11,m:'fire',pal:['#ff5e3a','#ff2e63','#ffb347'],L:[[.3,'L','فمِمَّ يتعوّذون؟'],[1.8,'A','من النار'],[3.2,'L','وهل رأوها؟'],[4.6,'A','لا والله يا رب ما رأوها'],[6.2,'L','فكيف لو رأوها؟'],[7.6,'A','لو رأوها كانوا أشد منها فرارًا، وأشد لها مخافة']]},
+ {d:6,m:'mercy',pal:['#ffd86b','#ff9ecd','#8ee8ff'],L:[[.3,'L','فأُشهدكم أني قد غفرتُ لهم']]},
+ {d:9,m:'rise',pal:['#7c5cff','#ffd86b','#00d4ff'],L:[[.3,'A','يقول ملَك من الملائكة: فيهم فلان ليس منهم، إنما جاء لحاجة'],[4.5,'L','هم الجلساء لا يشقى بهم جليسهم']]},
+ {d:6,m:'card',pal:['#7c5cff','#00d4ff','#ff5ca8'],L:[]}
 ];
 const total=scenes.reduce((s,x)=>s+x.d,0);
-let playing=false,start=0,recording=false,recorder,chunks=[];
+
+function bubbles(sc,t){
+  for(const who of ['L','A','N']){let cur=null;for(const l of sc.L)if(l[1]===who&&t>=l[0])cur=l;if(!cur)continue;
+    const e=ease(clamp((t-cur[0])/.6)),lines=wrap(cur[2],38,880),h=40+lines.length*54+(who==='N'?0:30);
+    const y=who==='L'?50:(who==='A'?H-50-h:H-60-h);const dy=(1-e)*28*(who==='L'?-1:1);
+    glass(640-470,y+dy,940,h,34,who==='L'?'#ffe38a':'#ffffff',e);
+    let ty=y+dy+(who==='N'?0:30)+48;
+    if(who!=='N')txt(who==='L'?'الربّ سبحانه وتعالى':'الملائكة',640,y+dy+34,22,who==='L'?'#ffe38a':'#9be7ff',e,'700');
+    lines.forEach((l,i)=>txt(l,640,ty+i*54,38,'#fff',e));}}
+
 function frame(T){let t=T,i=0;while(i<scenes.length-1&&t>=scenes[i].d){t-=scenes[i].d;i++;}
-  ctx.clearRect(0,0,W,H);ctx.globalAlpha=1;scenes[i].draw(t,scenes[i].d);
+  const sc=scenes[i];ctx.clearRect(0,0,W,H);ctx.globalAlpha=1;
+  bg(T,sc.pal);M[sc.m](t,sc.d,T);bubbles(sc,t);
+  const f=fade(t,sc.d,.5,.5);if(f<1){ctx.fillStyle='rgba(10,10,31,'+(1-f)+')';ctx.fillRect(0,0,W,H);}
   document.getElementById('prog').style.width=(T/total*100)+'%';}
+
+let playing=false,start=0,recording=false,recorder,chunks=[];
 function loop(now){if(!playing)return;const T=(now-start)/1000;
-  if(T>=total){frame(total-.01);playing=false;if(recording)finish();return;}
+  if(T>=total){frame(total-.01);playing=false;if(recording)setTimeout(()=>recorder.stop(),300);return;}
   frame(T);requestAnimationFrame(loop);}
-async function run(){await document.fonts.load('700 40px Amiri').catch(()=>{});playing=true;start=performance.now();requestAnimationFrame(loop);}
+async function run(){try{await document.fonts.load('700 40px Tajawal');}catch(e){}playing=true;start=performance.now();requestAnimationFrame(loop);}
 document.getElementById('play').onclick=()=>{if(!recording)run();};
-document.getElementById('rec').onclick=async()=>{
-  if(recording||!window.MediaRecorder){document.getElementById('msg').textContent='المتصفح لا يدعم التسجيل، استخدم Chrome أو Edge.';return;}
-  const types=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'];
-  const mt=types.find(t=>MediaRecorder.isTypeSupported(t));
-  recorder=new MediaRecorder(c.captureStream(30),{mimeType:mt,videoBitsPerSecond:6e6});
-  chunks=[];recorder.ondataavailable=e=>chunks.push(e.data);
-  recorder.onstop=()=>{const url=URL.createObjectURL(new Blob(chunks,{type:'video/webm'}));
-    const a=document.getElementById('dl');a.href=url;a.style.display='inline';a.click();
+document.getElementById('rec').onclick=()=>{
+  if(recording||!window.MediaRecorder){document.getElementById('msg').textContent='استخدم Chrome أو Edge على الحاسوب للتسجيل.';return;}
+  const mt=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'].find(t=>MediaRecorder.isTypeSupported(t));
+  recorder=new MediaRecorder(c.captureStream(30),{mimeType:mt,videoBitsPerSecond:8e6});chunks=[];
+  recorder.ondataavailable=e=>chunks.push(e.data);
+  recorder.onstop=()=>{const a=document.getElementById('dl');a.href=URL.createObjectURL(new Blob(chunks,{type:'video/webm'}));a.style.display='inline';a.click();
     document.getElementById('msg').textContent='تم التسجيل ✔';recording=false;};
-  document.getElementById('dl').style.display='none';
-  document.getElementById('msg').textContent='جارٍ التسجيل... انتظر حتى ينتهي العرض';
+  document.getElementById('dl').style.display='none';document.getElementById('msg').textContent='جارٍ التسجيل... انتظر حتى ينتهي العرض (نحو 75 ثانية)';
   recording=true;recorder.start();run();};
-function finish(){setTimeout(()=>recorder.stop(),300);}
-frame(.5);
+document.fonts.ready.then(()=>frame(1));frame(1);
 </script>
 </body>
 </html>
