@@ -1,19 +1,139 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <title>مقارنة سيارات BMW</title>
-  <link rel="stylesheet" href="ios.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>شرح حديث: كيف يأتي الوحي؟</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#0b1220;color:#fff;font-family:'Amiri','Noto Naskh Arabic',serif;text-align:center;padding:12px}
+  canvas{width:100%;max-width:960px;aspect-ratio:16/9;border-radius:14px;background:#000;box-shadow:0 8px 30px #0008}
+  .bar{max-width:960px;height:6px;background:#ffffff22;margin:10px auto;border-radius:3px;overflow:hidden}
+  #prog{height:100%;width:0;background:#e8c36a}
+  button{font:700 20px 'Amiri',serif;padding:10px 22px;margin:6px;border:0;border-radius:10px;cursor:pointer;background:#e8c36a;color:#222}
+  button.rec{background:#d9534f;color:#fff}
+  #dl{display:none;color:#8fe3a1;font-size:20px}
+  #msg{opacity:.8;font-size:16px}
+</style>
 </head>
 <body>
-  <h1>مقارنة سيارات BMW</h1>
+<canvas id="c" width="1280" height="720"></canvas>
+<div class="bar"><div id="prog"></div></div>
+<button id="play">▶ تشغيل</button>
+<button id="rec" class="rec">⏺ تسجيل وتحميل الفيديو</button>
+<div><a id="dl" download="sharh-hadith-alwahy.webm">⬇ اضغط هنا إن لم يبدأ التحميل تلقائياً</a></div>
+<div id="msg"></div>
 
-  <div class="compare-box">
-    <button onclick="compareCars()">قارن</button>
-  </div>
+<script>
+const c=document.getElementById('c'),ctx=c.getContext('2d'),W=1280,H=720;
+const FONT="'Amiri','Noto Naskh Arabic','Traditional Arabic',serif";
+const GOLD='#e8c36a';
+const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const fade=(t,d,i=.6,o=.6)=>clamp(Math.min(t/i,(d-t)/o));
 
-  <div id="results" class="results"></div>
+function bg(c1,c2){const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,c1);g.addColorStop(1,c2);ctx.fillStyle=g;ctx.fillRect(0,0,W,H);}
+function ground(y,col){ctx.fillStyle=col;ctx.fillRect(0,y,W,H-y);}
+function txt(s,x,y,size,col='#fff',alpha=1,bold=true){
+  ctx.save();ctx.globalAlpha=alpha;ctx.direction='rtl';ctx.textAlign='center';
+  ctx.font=(bold?'700 ':'')+size+'px '+FONT;ctx.fillStyle=col;ctx.fillText(s,x,y);ctx.restore();}
+function cap(list,t,d){ // list of [start,text]
+  let cur=null;for(const l of list){if(t>=l[0])cur=l;}
+  if(!cur)return;
+  const a=clamp((t-cur[0])/.5)*clamp((d-t)/.4);
+  ctx.save();ctx.globalAlpha=a*.7;ctx.fillStyle='#000';ctx.beginPath();ctx.roundRect(90,585,1100,90,22);ctx.fill();ctx.restore();
+  txt(cur[1],640,645,40,'#fff',a);
+}
+function glow(x,y,r,col,a=1){const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,col);g.addColorStop(1,'transparent');ctx.save();ctx.globalAlpha=a;ctx.fillStyle=g;ctx.fillRect(x-r,y-r,2*r,2*r);ctx.restore();}
+function person(x,y,s,col,type){ // faceless figure
+  ctx.save();
+  ctx.fillStyle=col;ctx.beginPath();ctx.roundRect(x-42*s,y-175*s,84*s,175*s,30*s);ctx.fill();
+  if(type==='f'){ctx.fillStyle=col;ctx.beginPath();ctx.arc(x,y-205*s,38*s,0,7);ctx.fill();ctx.beginPath();ctx.roundRect(x-48*s,y-190*s,96*s,150*s,40*s);ctx.fill();
+    ctx.fillStyle='#f2c9a0';ctx.beginPath();ctx.ellipse(x,y-205*s,22*s,26*s,0,0,7);ctx.fill();}
+  else{ctx.fillStyle='#f2c9a0';ctx.beginPath();ctx.arc(x,y-205*s,30*s,0,7);ctx.fill();
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(x,y-212*s,33*s,Math.PI*1.02,Math.PI*1.98);ctx.fill();
+    ctx.beginPath();ctx.roundRect(x-34*s,y-222*s,68*s,14*s,6*s);ctx.fill();}
+  ctx.restore();}
+function label(s,x,y,a=1){txt(s,x,y,28,GOLD,a);}
+function snow(t){ctx.fillStyle='#fff';for(let i=0;i<90;i++){const x=(i*137)%W+Math.sin(t+i)*15,y=(i*53+t*60*(.5+(i%3)*.3))%H;ctx.globalAlpha=.8;ctx.beginPath();ctx.arc(x,y,2+(i%3),0,7);ctx.fill();}ctx.globalAlpha=1;}
+function bell(x,y,ang){ctx.save();ctx.translate(x,y);ctx.rotate(ang);ctx.fillStyle=GOLD;ctx.beginPath();ctx.moveTo(-50,70);ctx.quadraticCurveTo(-50,-10,0,-25);ctx.quadraticCurveTo(50,-10,50,70);ctx.closePath();ctx.fill();
+  ctx.fillRect(-60,66,120,12);ctx.beginPath();ctx.arc(0,86,12,0,7);ctx.fill();ctx.fillRect(-6,-45,12,25);ctx.restore();}
 
-  <script src="ios.js"></script>
+const scenes=[
+ {d:4,draw(t,d){bg('#12263f','#0b1220');glow(640,300,420,'#e8c36a55',fade(t,d));
+  txt('شرح حديث',640,230,44,GOLD,fade(t,d));
+  txt('كيف يأتي الوحي؟',640,340,90,'#fff',clamp((t-.5)/.8)*clamp((d-t)/.5));
+  txt('صحيح البخاري ‏(2)',640,440,34,'#cfd8e6',clamp((t-1.5)/.8)*clamp((d-t)/.5));}},
+ {d:8,draw(t,d){bg('#1b3a4b','#264653');ground(540,'#c9a86a');
+  const a=fade(t,d);ctx.globalAlpha=a;
+  person(380,540,1,'#6b8f71','m');person(900,540,1,'#3d5a80','m');glow(900,335,110,'#e8c36a44');
+  label('الحارث بن هشام رضي الله عنه',380,585);label('النبي ﷺ',900,585);ctx.globalAlpha=1;
+  const b=clamp((t-1.5)/.6)*clamp((d-t)/.5);
+  ctx.save();ctx.globalAlpha=b;ctx.fillStyle='#fff';ctx.beginPath();ctx.roundRect(150,110,520,110,28);ctx.fill();
+  ctx.beginPath();ctx.moveTo(360,218);ctx.lineTo(380,290);ctx.lineTo(420,218);ctx.fill();ctx.restore();
+  txt('يا رسول الله، كيف يأتيك الوحي؟',410,180,40,'#1b3a4b',b);
+  const e=clamp((t-4.5)/.6)*clamp((d-t)/.5);
+  ctx.save();ctx.globalAlpha=e;ctx.fillStyle='#fff';ctx.beginPath();ctx.roundRect(680,110,470,110,28);ctx.fill();ctx.beginPath();ctx.moveTo(860,218);ctx.lineTo(900,285);ctx.lineTo(920,218);ctx.fill();ctx.restore();
+  txt('للوحي صورتان، سأخبرك بهما',915,180,38,'#264653',e);
+  }},
+ {d:9,draw(t,d){bg('#2b2d42','#1a1b2e');ground(560,'#3a3a52');
+  const heavy=t<5.5,sh=heavy?Math.sin(t*45)*4*clamp((t-.5)/.5):0;
+  ctx.save();ctx.translate(sh,0);ctx.globalAlpha=fade(t,d);person(640,560,1,'#3d5a80','m');
+  glow(640,355,heavy?170:90,'#e8c36a66',heavy?.9:.4);ctx.restore();
+  const sw=heavy?Math.sin(t*14)*.3:0;
+  ctx.globalAlpha=fade(t,d);bell(640,175,sw);ctx.globalAlpha=1;
+  if(heavy)for(let k=0;k<4;k++){const r=((t*130+k*70)%280)+40;ctx.strokeStyle=GOLD;ctx.globalAlpha=(1-(r-40)/280)*.7;ctx.lineWidth=4;ctx.beginPath();ctx.arc(640,230,r,0,7);ctx.stroke();}
+  ctx.globalAlpha=1;
+  if(t>3.5&&t<5.5)txt('وهو أشدّه عليّ',640,70,52,'#ff9b85',clamp((t-3.5)/.4));
+  if(t<3.5)txt('الصورة الأولى',640,70,46,GOLD,fade(t,d));
+  if(t>=5.5)txt('ثم ينقطع الصوت وقد حفظ ما قيل',640,70,46,'#8fe3a1',clamp((t-5.5)/.6)*clamp((d-t)/.5));
+  cap([[.3,'أحياناً يأتيني مثل صلصلة الجرس'],[3.5,'وهو أشدّه عليّ'],[5.5,'فيُفصَم عنّي وقد وعيتُ عنه ما قال']],t,d);}},
+ {d:9,draw(t,d){bg('#264653','#14303a');ground(540,'#bfa36a');
+  ctx.globalAlpha=fade(t,d);person(300,540,1,'#f4f1de','m');glow(300,335,130,'#ffffff77');
+  person(900,540,1,'#3d5a80','m');glow(900,335,100,'#e8c36a44');ctx.globalAlpha=1;
+  label('الملَك (في صورة رجل)',300,585,fade(t,d));label('النبي ﷺ',900,585,fade(t,d));
+  if(t>3.5){for(let i=0;i<9;i++){const p=((t*.5+i/9)%1),x=380+p*440,y=370+Math.sin(p*12+i)*18;ctx.fillStyle=GOLD;ctx.globalAlpha=(1-Math.abs(p-.5)*1.6)*.9;ctx.beginPath();ctx.arc(x,y,7,0,7);ctx.fill();}ctx.globalAlpha=1;}
+  txt('الصورة الثانية',640,70,46,GOLD,fade(t,d));
+  cap([[.3,'وأحياناً يتمثّل لي الملَك رجلاً'],[3.5,'فيكلّمني'],[5.5,'فأعي ما يقول']],t,d);}},
+ {d:10,draw(t,d){bg('#16324f','#0d1b2a');snow(t);ground(560,'#e3ecf4');
+  ctx.globalAlpha=fade(t,d);person(300,560,.95,'#7b4b94','f');person(800,560,1,'#3d5a80','m');
+  glow(800,355,t<6?160:80,'#e8c36a55',.8);ctx.globalAlpha=1;
+  label('عائشة رضي الله عنها',300,595,fade(t,d));label('النبي ﷺ',800,595,fade(t,d));
+  if(t>3.5){for(let i=0;i<5;i++){const p=((t*.6+i/5)%1);ctx.fillStyle='#bfe9ff';ctx.globalAlpha=(1-p)*clamp((t-3.5)/1)*clamp((d-t)/.5);
+    ctx.beginPath();ctx.ellipse(770+i*15,330+p*70,5,8,0,0,7);ctx.fill();}ctx.globalAlpha=1;}
+  txt('يوم شديد البرد ❄',640,70,46,'#bfe9ff',fade(t,d));
+  cap([[.3,'قالت عائشة رضي الله عنها:'],[1.8,'ولقد رأيته ينزل عليه الوحي في اليوم الشديد البرد'],[5.5,'فيفصم عنه وإن جبينه ليتفصّد عرقاً'],[8,'وهذا يدل على شدة ما يتحمّله ﷺ']],t,d);}},
+ {d:6,draw(t,d){bg('#12263f','#0b1220');glow(640,360,400,'#e8c36a33');const a=fade(t,d);
+  ctx.save();ctx.globalAlpha=a*.15;ctx.fillStyle='#fff';ctx.beginPath();ctx.roundRect(240,120,800,480,30);ctx.fill();ctx.restore();
+  txt('الراوي: عائشة أم المؤمنين',640,230,44,'#fff',a);
+  txt('المحدّث: البخاري',640,310,44,'#fff',a);
+  txt('المصدر: صحيح البخاري',640,390,44,'#fff',a);
+  txt('رقم الحديث: 2',640,470,44,'#fff',a);
+  txt('خلاصة حكم المحدّث: [صحيح]',640,550,46,GOLD,a);}}
+];
+const total=scenes.reduce((s,x)=>s+x.d,0);
+let playing=false,start=0,recording=false,recorder,chunks=[];
+function frame(T){let t=T,i=0;while(i<scenes.length-1&&t>=scenes[i].d){t-=scenes[i].d;i++;}
+  ctx.clearRect(0,0,W,H);ctx.globalAlpha=1;scenes[i].draw(t,scenes[i].d);
+  document.getElementById('prog').style.width=(T/total*100)+'%';}
+function loop(now){if(!playing)return;const T=(now-start)/1000;
+  if(T>=total){frame(total-.01);playing=false;if(recording)finish();return;}
+  frame(T);requestAnimationFrame(loop);}
+async function run(){await document.fonts.load('700 40px Amiri').catch(()=>{});playing=true;start=performance.now();requestAnimationFrame(loop);}
+document.getElementById('play').onclick=()=>{if(!recording)run();};
+document.getElementById('rec').onclick=async()=>{
+  if(recording||!window.MediaRecorder){document.getElementById('msg').textContent='المتصفح لا يدعم التسجيل، استخدم Chrome أو Edge.';return;}
+  const types=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'];
+  const mt=types.find(t=>MediaRecorder.isTypeSupported(t));
+  recorder=new MediaRecorder(c.captureStream(30),{mimeType:mt,videoBitsPerSecond:6e6});
+  chunks=[];recorder.ondataavailable=e=>chunks.push(e.data);
+  recorder.onstop=()=>{const url=URL.createObjectURL(new Blob(chunks,{type:'video/webm'}));
+    const a=document.getElementById('dl');a.href=url;a.style.display='inline';a.click();
+    document.getElementById('msg').textContent='تم التسجيل ✔';recording=false;};
+  document.getElementById('dl').style.display='none';
+  document.getElementById('msg').textContent='جارٍ التسجيل... انتظر حتى ينتهي العرض';
+  recording=true;recorder.start();run();};
+function finish(){setTimeout(()=>recorder.stop(),300);}
+frame(.5);
+</script>
 </body>
 </html>
